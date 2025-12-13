@@ -38,9 +38,10 @@ const History = () => {
                             <div key={scan._id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300">
                                 <div className="flex justify-between items-center mb-4">
                                     <span className="text-xs text-gray-400">{new Date(scan.createdAt).toLocaleDateString()}</span>
-                                    <span className={`text-xs font-bold px-2 py-1 rounded-full text-white ${scan.healthScore >= 70 ? 'bg-green-500' : scan.healthScore >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                                    <span className={`text-xs font-bold px-2 py-1 rounded-full text-white ${scan.healthScore === null ? 'bg-gray-400' :
+                                            scan.healthScore >= 70 ? 'bg-green-500' : scan.healthScore >= 40 ? 'bg-yellow-500' : 'bg-red-500'
                                         }`}>
-                                        Score: {scan.healthScore}
+                                        Score: {scan.healthScore !== null ? scan.healthScore : 'N/A'}
                                     </span>
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-800 mb-2 truncate" title={scan.productName}>

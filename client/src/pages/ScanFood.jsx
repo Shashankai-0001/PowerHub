@@ -119,20 +119,32 @@ const ScanFood = () => {
                                 <p className="text-sm text-gray-500 mb-4">Barcode: {result.barcode}</p>
 
                                 {/* Health Score */}
-                                <div className="flex items-center mb-6">
-                                    <div className={`
-                            w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-md mr-4
-                            ${result.healthScore >= 70 ? 'bg-green-500' : result.healthScore >= 40 ? 'bg-yellow-500' : 'bg-red-500'}
-                        `}>
-                                        {result.healthScore}
+                                {result.nutritionAvailable ? (
+                                    <div className="flex items-center mb-6">
+                                        <div className={`
+                                        w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-md mr-4
+                                        ${result.healthScore >= 70 ? 'bg-green-500' : result.healthScore >= 40 ? 'bg-yellow-500' : 'bg-red-500'}
+                                    `}>
+                                            {result.healthScore}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-700">Health Score</p>
+                                            <p className="text-sm text-gray-500">
+                                                {result.healthScore >= 70 ? 'Excellent Choice' : result.healthScore >= 40 ? 'Moderate' : 'Unhealthy'}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="font-semibold text-gray-700">Health Score</p>
-                                        <p className="text-sm text-gray-500">
-                                            {result.healthScore >= 70 ? 'Excellent Choice' : result.healthScore >= 40 ? 'Moderate' : 'Unhealthy'}
-                                        </p>
+                                ) : (
+                                    <div className="flex items-center mb-6">
+                                        <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-md mr-4 bg-gray-400">
+                                            N/A
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-700">Health Score</p>
+                                            <p className="text-sm text-gray-500">Insufficient Data</p>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {/* Warnings */}
                                 {result.warnings.length > 0 && (
@@ -146,24 +158,30 @@ const ScanFood = () => {
                                 )}
 
                                 {/* Nutrition Facts */}
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div className="bg-gray-50 p-2 rounded">
-                                        <span className="block text-gray-500">Calories</span>
-                                        <span className="font-bold">{result.calories} kcal</span>
+                                {result.nutritionAvailable ? (
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div className="bg-gray-50 p-2 rounded">
+                                            <span className="block text-gray-500">Calories</span>
+                                            <span className="font-bold">{result.calories} kcal</span>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded">
+                                            <span className="block text-gray-500">Protein</span>
+                                            <span className="font-bold">{result.protein}g</span>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded">
+                                            <span className="block text-gray-500">Sugar</span>
+                                            <span className="font-bold">{result.sugar}g</span>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded">
+                                            <span className="block text-gray-500">Fat</span>
+                                            <span className="font-bold">{result.fat}g</span>
+                                        </div>
                                     </div>
-                                    <div className="bg-gray-50 p-2 rounded">
-                                        <span className="block text-gray-500">Protein</span>
-                                        <span className="font-bold">{result.protein}g</span>
+                                ) : (
+                                    <div className="bg-gray-50 p-4 rounded text-center text-gray-500 text-sm">
+                                        Nutrition data currently unavailable for this product.
                                     </div>
-                                    <div className="bg-gray-50 p-2 rounded">
-                                        <span className="block text-gray-500">Sugar</span>
-                                        <span className="font-bold">{result.sugar}g</span>
-                                    </div>
-                                    <div className="bg-gray-50 p-2 rounded">
-                                        <span className="block text-gray-500">Fat</span>
-                                        <span className="font-bold">{result.fat}g</span>
-                                    </div>
-                                </div>
+                                )}
 
                                 <button
                                     onClick={() => setResult(null)}

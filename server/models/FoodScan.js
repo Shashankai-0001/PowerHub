@@ -20,7 +20,8 @@ const foodScanSchema = mongoose.Schema(
         fat: { type: Number, default: 0 },
         sodium: { type: Number, default: 0 },
         protein: { type: Number, default: 0 },
-        healthScore: { type: Number, required: true },
+        healthScore: { type: Number }, // removed required: true to allow null
+        nutritionAvailable: { type: Boolean, default: true },
         warnings: [{ type: String }],
         imageUrl: { type: String },
     },

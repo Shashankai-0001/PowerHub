@@ -25,6 +25,7 @@ const scanRoutes = require('./routes/scanRoutes');
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/scan', scanRoutes);
+app.use('/api/v1/workouts', require('./routes/workoutRoutes'));
 
 const PORT = process.env.PORT || 5000;
 

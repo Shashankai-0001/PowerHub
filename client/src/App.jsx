@@ -5,7 +5,6 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Workouts from './pages/Workouts';
-import DietPlan from './pages/DietPlan';
 import ScanFood from './pages/ScanFood';
 import History from './pages/History';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -28,7 +27,6 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/workouts" element={<Workouts />} />
-            <Route path="/diet-plan" element={<DietPlan />} />
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>

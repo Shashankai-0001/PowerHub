@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/Navbar';
+import { Navigation } from './components/Navigation';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -20,29 +20,31 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-gray-50 font-sans">
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/workouts" element={<Workouts />} />
+        <div className="min-h-screen bg-background font-sans text-foreground">
+          <Navigation />
+          <div className="pt-16">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/workouts" element={<Workouts />} />
 
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/scan" element={<ScanFood />} />
-              <Route path="/scan/history" element={<History />} />
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/scan" element={<ScanFood />} />
+                <Route path="/scan/history" element={<History />} />
 
-              {/* Workout Module Routes */}
-              <Route path="/workouts/profile" element={<WorkoutProfile />} />
-              <Route path="/workouts/exercises" element={<ExerciseLibrary />} />
-              <Route path="/workouts/session" element={<WorkoutSession />} />
-              <Route path="/workouts/planner" element={<WeeklyPlanner />} />
-              <Route path="/workouts/dashboard" element={<ProgressDashboard />} />
-              <Route path="/workouts/notes" element={<NotesReminders />} />
-              <Route path="/diet/dashboard" element={<DietDashboard />} />
-            </Route>
-          </Routes>
+                {/* Workout Module Routes */}
+                <Route path="/workouts/profile" element={<WorkoutProfile />} />
+                <Route path="/workouts/exercises" element={<ExerciseLibrary />} />
+                <Route path="/workouts/session" element={<WorkoutSession />} />
+                <Route path="/workouts/planner" element={<WeeklyPlanner />} />
+                <Route path="/workouts/dashboard" element={<ProgressDashboard />} />
+                <Route path="/workouts/notes" element={<NotesReminders />} />
+                <Route path="/diet/dashboard" element={<DietDashboard />} />
+              </Route>
+            </Routes>
+          </div>
         </div>
       </AuthProvider>
     </Router>

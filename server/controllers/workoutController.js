@@ -145,6 +145,39 @@ exports.getRoutineById = async (req, res) => {
 };
 
 // --- Sessions ---
+exports.createRoutine = async (req, res) => {
+    try {
+        const { name, exercises, goal, level } = req.body;
+        // Basic validation
+        if (!exercises || exercises.length === 0) {
+            return res.status(400).json({ message: 'Exercises are required' });
+        }
+
+        const routine = new WorkoutRoutine({
+            name: name || `Custom Routine - ${new Date().toLocaleDateString()}`,
+            goal: 'general_fitness', // Default enum value
+            level: 'intermediate',   // Default enum value
+            equipment: 'gym',        // Default enum value (required)
+            duration: 45,            // Default estimate
+            exercises: exercises.map(ex => ({
+                exercise: ex._id,
+                sets: 3, // Default
+                reps: "12", // Default
+                rest: 60 // Default
+            }))
+        });
+
+        await routine.save();
+
+        // Populate for immediate use
+        const populatedRoutine = await WorkoutRoutine.findById(routine._id).populate('exercises.exercise');
+
+        res.status(201).json(populatedRoutine);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
 exports.logSession = async (req, res) => {
     try {
         const { routineId, duration, caloriesBurned, exercisesCompleted, notes } = req.body;

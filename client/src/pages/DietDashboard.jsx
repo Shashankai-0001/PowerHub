@@ -97,7 +97,29 @@ export default function DietDashboard() {
     );
   }
 
-  // --- CHART CONFIGURATIONS ---
+  // --- CHART CONFIGURATIONS (THEMED) ---
+
+  const commonChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: '#e5e7eb' } },
+      title: { color: '#e5e7eb' }
+    },
+    scales: {
+      x: { ticks: { color: '#64748b' }, grid: { color: '#e2e8f0' } },
+      y: { ticks: { color: '#64748b' }, grid: { color: '#e2e8f0' } }
+    }
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '70%',
+    plugins: {
+      legend: { labels: { color: '#0f172a' } }
+    }
+  }
 
   // 1. Calorie Trend (Line Chart)
   const calorieTrendData = {
@@ -106,15 +128,23 @@ export default function DietDashboard() {
       {
         label: 'Calories Consumed',
         data: analytics.dailyTrend.calorieData,
-        borderColor: '#8b5cf6', // Violet
-        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+        borderColor: '#7000FF', // Neon Purple
+        pointBackgroundColor: '#000',
+        pointBorderColor: '#7000FF',
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+          gradient.addColorStop(0, 'rgba(112, 0, 255, 0.4)');
+          gradient.addColorStop(1, 'rgba(112, 0, 255, 0.0)');
+          return gradient;
+        },
         tension: 0.4,
         fill: true
       },
       {
         label: 'Daily Goal',
         data: analytics.dailyTrend.labels.map(() => diet.calories),
-        borderColor: '#9ca3af', // Gray
+        borderColor: '#ffffff', // White
         borderDash: [5, 5],
         tension: 0,
         pointRadius: 0
@@ -129,17 +159,20 @@ export default function DietDashboard() {
       {
         label: 'Protein',
         data: analytics.weeklyMacros.map(m => m.protein),
-        backgroundColor: '#6366f1',
+        backgroundColor: '#CCFF00', // Neon Lime
+        borderRadius: 4,
       },
       {
         label: 'Carbs',
         data: analytics.weeklyMacros.map(m => m.carbs),
-        backgroundColor: '#fbbf24',
+        backgroundColor: '#ffffff', // White
+        borderRadius: 4,
       },
       {
         label: 'Fats',
         data: analytics.weeklyMacros.map(m => m.fats),
-        backgroundColor: '#10b981',
+        backgroundColor: '#00F0FF', // Neon Cyan
+        borderRadius: 4,
       },
     ]
   };
@@ -151,8 +184,16 @@ export default function DietDashboard() {
       {
         label: 'Health Score',
         data: analytics.dailyTrend.healthScoreData,
-        borderColor: '#f59e0b', // Amber
-        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+        borderColor: '#00F0FF', // Neon Cyan
+        pointBackgroundColor: '#000',
+        pointBorderColor: '#00F0FF',
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+          gradient.addColorStop(0, 'rgba(0, 240, 255, 0.4)');
+          gradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+          return gradient;
+        },
         tension: 0.4,
         fill: true
       }
@@ -168,25 +209,25 @@ export default function DietDashboard() {
         analytics.foodQuality.moderate,
         analytics.foodQuality.unhealthy
       ],
-      backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+      backgroundColor: ['#CCFF00', '#f59e0b', '#FF003C'], // Lime, Amber, Neon Red
       borderWidth: 0
     }]
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 bg-gray-50 min-h-screen">
+    <div className="max-w-7xl mx-auto px-4 py-8 min-h-screen pb-24">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-card backdrop-blur-xl border border-border p-8 rounded-3xl shadow-2xl">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">AI & Analytics Dashboard</h1>
-          <p className="text-gray-500 mt-1">Real-time insights tailored to your metabolism.</p>
+          <h1 className="text-4xl font-black text-foreground tracking-tight mb-2">AI & Analytics Dashboard</h1>
+          <p className="text-muted-foreground">Real-time insights tailored to your metabolism.</p>
         </div>
-        <div className="mt-4 md:mt-0 flex gap-3">
+        <div className="mt-6 md:mt-0 flex gap-3">
           <button
             onClick={saveToHistory}
-            className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 flex items-center gap-2"
+            className="bg-primary text-black px-6 py-3 rounded-xl font-bold hover:bg-primary/90 transition shadow-[0_0_15px_rgba(204,255,0,0.3)] flex items-center gap-2 transform hover:scale-105 duration-200"
           >
-            <span>💾</span> Save New Plan
+            Save New Plan
           </button>
         </div>
       </div>
@@ -195,9 +236,8 @@ export default function DietDashboard() {
       {analytics.insights.length > 0 && (
         <div className="grid gap-4 mb-8">
           {analytics.insights.map((insight, idx) => (
-            <div key={idx} className={`p-4 rounded-xl border-l-4 flex items-center shadow-sm bg-white ${insight.type === 'success' ? 'border-green-500 text-green-700' : 'border-amber-500 text-amber-700'}`}>
-              <span className="text-2xl mr-3">{insight.type === 'success' ? '🚀' : '💡'}</span>
-              <p className="font-medium">{insight.text}</p>
+            <div key={idx} className={`p-4 rounded-xl border-l-4 flex items-center shadow-lg bg-card border border-white/10 backdrop-blur-md ${insight.type === 'success' ? 'border-l-primary text-gray-200' : 'border-l-amber-500 text-gray-200'}`}>
+              <p className="font-medium text-lg">{insight.text}</p>
             </div>
           ))}
         </div>
@@ -207,73 +247,73 @@ export default function DietDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         {/* ROW 1: Trend & Macros */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="bg-violet-100 text-violet-600 p-2 rounded-lg">🔥</span> Calorie Trend (Last 7 Days)
+        <div className="lg:col-span-2 bg-card backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-border">
+          <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
+            Calorie Trend (Last 7 Days)
           </h3>
           <div className="h-64">
-            <Line data={calorieTrendData} options={{ maintainAspectRatio: false }} />
+            <Line data={calorieTrendData} options={commonChartOptions} />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="bg-emerald-100 text-emerald-600 p-2 rounded-lg">🥗</span> Food Quality
+        <div className="bg-card backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-border">
+          <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
+            Food Quality
           </h3>
           <div className="h-64 flex justify-center">
-            <Doughnut data={qualityData} options={{ maintainAspectRatio: false, cutout: '70%' }} />
+            <Doughnut data={qualityData} options={doughnutOptions} />
           </div>
-          <div className="text-center mt-4">
-            <p className="text-gray-500 text-sm">Based on your recent scans</p>
+          <div className="text-center mt-6">
+            <p className="text-muted-foreground text-sm font-mono">Based on your recent scans</p>
           </div>
         </div>
 
         {/* ROW 2: Macro Stack & Health Score */}
-        <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">📊</span> Weekly Macros
+        <div className="bg-card backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-border">
+          <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
+            Weekly Macros
           </h3>
           <div className="h-64">
-            <Bar data={macroStackData} options={{ maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }} />
+            <Bar data={macroStackData} options={{ ...commonChartOptions, scales: { x: { ...commonChartOptions.scales.x, stacked: true }, y: { ...commonChartOptions.scales.y, stacked: true } } }} />
           </div>
         </div>
 
-        <div className="lg:col-span-2 bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="bg-amber-100 text-amber-600 p-2 rounded-lg">❤️</span> Health Score History
+        <div className="lg:col-span-2 bg-card backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-border">
+          <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
+            Health Score History
           </h3>
           <div className="h-64">
-            <Line data={healthTrendData} options={{ maintainAspectRatio: false }} />
+            <Line data={healthTrendData} options={commonChartOptions} />
           </div>
         </div>
 
         {/* ROW 3: Consistency & Targets */}
-        <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 flex flex-col items-center justify-center text-center">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Consistency Score</h3>
-          <div className="relative w-32 h-32 flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle cx="64" cy="64" r="56" stroke="#e5e7eb" strokeWidth="12" fill="none" />
-              <circle cx="64" cy="64" r="56" stroke="#4f46e5" strokeWidth="12" fill="none" strokeDasharray={`${(analytics.consistencyScore / 100) * 351} 351`} />
+        <div className="bg-card backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-border flex flex-col items-center justify-center text-center">
+          <h3 className="text-xl font-bold text-foreground mb-4">Consistency Score</h3>
+          <div className="relative w-40 h-40 flex items-center justify-center my-4">
+            <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_10px_rgba(112,0,255,0.5)]">
+              <circle cx="80" cy="80" r="70" stroke="#e2e8f0" strokeWidth="15" fill="none" />
+              <circle cx="80" cy="80" r="70" stroke="#7000FF" strokeWidth="15" fill="none" strokeDasharray={`${(analytics.consistencyScore / 100) * 440} 440`} strokeLinecap="round" />
             </svg>
-            <span className="absolute text-2xl font-bold text-indigo-600">{analytics.consistencyScore}%</span>
+            <span className="absolute text-3xl font-black text-accent">{analytics.consistencyScore}%</span>
           </div>
-          <p className="text-gray-500 text-sm mt-4">Keep logging to improve!</p>
+          <p className="text-muted-foreground text-sm mt-2">Keep logging to improve!</p>
         </div>
 
-        <div className="lg:col-span-2 bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-3xl shadow-lg text-white">
-          <h3 className="text-xl font-bold mb-4">Today's Target Overview</h3>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-white/20 p-4 rounded-xl">
-              <p className="text-indigo-100 text-sm">Protein</p>
-              <p className="text-2xl font-bold">{diet.macros.protein.grams}g</p>
+        <div className="lg:col-span-2 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 border border-border p-8 rounded-3xl shadow-xl backdrop-blur-md">
+          <h3 className="text-2xl font-black text-foreground mb-8 text-center tracking-tight">Today's Target Overview</h3>
+          <div className="grid grid-cols-3 gap-6 text-center">
+            <div className="bg-muted border border-border p-6 rounded-2xl hover:bg-muted/80 transition-colors">
+              <p className="text-primary font-bold mb-2 uppercase tracking-widest text-sm">Protein</p>
+              <p className="text-4xl font-black text-foreground">{diet.macros.protein.grams}<span className="text-lg text-muted-foreground font-medium lowercase">g</span></p>
             </div>
-            <div className="bg-white/20 p-4 rounded-xl">
-              <p className="text-indigo-100 text-sm">Carbs</p>
-              <p className="text-2xl font-bold">{diet.macros.carbs.grams}g</p>
+            <div className="bg-muted border border-border p-6 rounded-2xl hover:bg-muted/80 transition-colors">
+              <p className="text-foreground font-bold mb-2 uppercase tracking-widest text-sm">Carbs</p>
+              <p className="text-4xl font-black text-foreground">{diet.macros.carbs.grams}<span className="text-lg text-muted-foreground font-medium lowercase">g</span></p>
             </div>
-            <div className="bg-white/20 p-4 rounded-xl">
-              <p className="text-indigo-100 text-sm">Fats</p>
-              <p className="text-2xl font-bold">{diet.macros.fats.grams}g</p>
+            <div className="bg-muted border border-border p-6 rounded-2xl hover:bg-muted/80 transition-colors">
+              <p className="text-secondary font-bold mb-2 uppercase tracking-widest text-sm">Fats</p>
+              <p className="text-4xl font-black text-foreground">{diet.macros.fats.grams}<span className="text-lg text-muted-foreground font-medium lowercase">g</span></p>
             </div>
           </div>
         </div>

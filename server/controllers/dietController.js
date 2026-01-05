@@ -6,31 +6,33 @@ exports.getDietSummary = async (req, res) => {
   try {
     const profile = await UserWorkoutProfile.findOne({ userId: req.user.id });
 
-    if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
+    // if (!profile) {
+    //   return res.status(404).json({ message: "Profile not found" });
+    // }
+    const defaultProfile = { weight: 70, height: 170, age: 30, gender: 'male', fitnessGoal: 'maintenance', activityLevel: 'moderate' };
+    const safeProfile = profile || defaultProfile;
 
     // Use profile values or defaults for calculation
-    const weight = profile.weight || 70;
-    const height = profile.height || 170;
-    const age = profile.age || 30;
-    const gender = profile.gender || 'male';
+    const weight = safeProfile.weight || 70;
+    const height = safeProfile.height || 170;
+    const age = safeProfile.age || 30;
+    const gender = safeProfile.gender || 'male';
 
     // Map existing fitnessGoal to diet goal if necessary
     let goal = 'maintenance';
-    if (profile.fitnessGoal === 'weight_gain' || profile.fitnessGoal === 'strength') {
+    const pGoal = safeProfile.fitnessGoal;
+    if (pGoal === 'weight_gain' || pGoal === 'strength') {
       goal = 'muscle_gain';
-    } else if (profile.fitnessGoal === 'weight_loss') {
+    } else if (pGoal === 'weight_loss') {
       goal = 'weight_loss';
-    } else if (profile.goal) {
-      goal = profile.goal;
-    } else if (profile.fitnessGoal) {
-      // Fallback for custom strings
-      if (profile.fitnessGoal.includes('loss')) goal = 'weight_loss';
-      if (profile.fitnessGoal.includes('gain')) goal = 'muscle_gain';
+    } else if (safeProfile.goal) {
+      goal = safeProfile.goal;
+    } else if (pGoal) {
+      if (pGoal.includes('loss')) goal = 'weight_loss';
+      if (pGoal.includes('gain')) goal = 'muscle_gain';
     }
 
-    const activityLevel = profile.activityLevel || inferActivityLevelFromDuration(profile.dailyDuration);
+    const activityLevel = safeProfile.activityLevel || inferActivityLevelFromDuration(safeProfile.dailyDuration);
 
     const bmr = calculateBMR({ weight, height, age, gender });
     const tdee = calculateTDEE(bmr, activityLevel);

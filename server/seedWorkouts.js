@@ -22,18 +22,45 @@ const seedData = async () => {
             // Base URL for images from the repo
             const baseUrl = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 
-            // Check if we have a local override for this exercise (for the top 3 animations)
-            let gifUrl = null;
-            if (ex.name === 'Push Up' || ex.name === 'Pushups') gifUrl = '/exercises/pushup.gif';
-            else if (ex.name === 'Squat' || ex.name === 'Bodyweight Squat') gifUrl = '/exercises/squat.gif';
-            else if (ex.name === 'Plank') gifUrl = '/exercises/plank.gif';
-            else if (ex.images && ex.images.length > 0) {
-                // Use the first image as the "animation" (often they are sequences, so 0.jpg or 1.jpg)
-                // We can use the second image (1.jpg) as it often shows the peak of the movement
-                gifUrl = baseUrl + ex.images[1] || baseUrl + ex.images[0];
-            } else {
-                gifUrl = `https://placehold.co/600x400/png?text=${encodeURIComponent(ex.name)}`;
-            }
+            // Map common exercises to Giphy URLs for demo purposes
+            const gifMap = {
+                // Cardio / Bodyweight
+                'Jumping Jacks': 'https://media.giphy.com/media/clWZCO2i2g7Wo/giphy.gif',
+                'Star Jump': 'https://media.giphy.com/media/5t9IcRmVOe1A4/giphy.gif',
+                'Burpee': 'https://media.giphy.com/media/23hPPmr8PnmjwRfS/giphy.gif',
+                'Mountain Climber': 'https://media.giphy.com/media/13t2OTCFzCqJbO/giphy.gif',
+                'High Knees': 'https://media.giphy.com/media/l0HlHJGHe3yAMhdQY/giphy.gif',
+
+                // Legs
+                'Squat': 'https://media.giphy.com/media/12h4xwPxNCAxxe/giphy.gif',
+                'Bodyweight Squat': 'https://media.giphy.com/media/12h4xwPxNCAxxe/giphy.gif',
+                'Lunge': 'https://media.giphy.com/media/l3q2Q3sUEkEyDvfTZC/giphy.gif',
+                'Bodyweight Lunge': 'https://media.giphy.com/media/l3q2Q3sUEkEyDvfTZC/giphy.gif',
+
+                // Upper Body - Push
+                'Push Up': 'https://media.giphy.com/media/wwNv7s3k4qWJO/giphy.gif',
+                'Pushups': 'https://media.giphy.com/media/wwNv7s3k4qWJO/giphy.gif',
+                'Dumbbell Bench Press': 'https://media.giphy.com/media/61T05t2sSQfFC/giphy.gif',
+                'Dumbbell Shoulder Press': 'https://media.giphy.com/media/wM0IbbcNmwOR2/giphy.gif',
+                'Seated Dumbbell Press': 'https://media.giphy.com/media/wM0IbbcNmwOR2/giphy.gif',
+                'Tricep Extension': 'https://media.giphy.com/media/3o7qE5866bLg4PcnRw/giphy.gif',
+                'Seated Triceps Press': 'https://media.giphy.com/media/3o7qE5866bLg4PcnRw/giphy.gif',
+
+                // Upper Body - Pull
+                'Dumbbell Row': 'https://media.giphy.com/media/p8yq7b2tNn4vm/giphy.gif', // Fallback
+                'Bent Over Dumbbell Row': 'https://media.giphy.com/media/p8yq7b2tNn4vm/giphy.gif', // Fallback
+                'Bicep Curl': 'https://media.giphy.com/media/wKwTcfz10bLwc/giphy.gif',
+                'Dumbbell Bicep Curl': 'https://media.giphy.com/media/wKwTcfz10bLwc/giphy.gif',
+
+                // Core
+                'Plank': 'https://media.giphy.com/media/p8yq7b2tNn4vm/giphy.gif',
+            };
+
+            // Check map, then repo images
+            let gifUrl = gifMap[ex.name] || (ex.images && ex.images.length > 0 ? baseUrl + ex.images[0] : null);
+
+            // STRICT FILTER: If no visual content, skip this exercise
+            if (!gifUrl) return null;
 
             // Map equipment to match our schema enum
             let equipment = ex.equipment || 'none';
@@ -74,8 +101,8 @@ const seedData = async () => {
             };
         };
 
-        // Map all exercises (Restoring full library)
-        const exercises = exercisesData.map(mapExercise);
+        // Map all exercises and filter out those with no visuals
+        const exercises = exercisesData.map(mapExercise).filter(e => e !== null);
 
         const createdExercises = await Exercise.insertMany(exercises);
 

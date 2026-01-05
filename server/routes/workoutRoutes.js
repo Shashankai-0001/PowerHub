@@ -17,6 +17,7 @@ router.get('/exercises/:id', workoutController.getExerciseById);
 // Routines
 router.get('/routines/generate', workoutController.generateRoutine);
 router.get('/routines', workoutController.getRoutines);
+router.post('/routines', workoutController.createRoutine);
 router.get('/routines/:id', workoutController.getRoutineById);
 
 // Sessions

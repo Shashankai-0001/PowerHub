@@ -70,64 +70,64 @@ const NotesReminders = () => {
     };
 
     return (
-        <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="container mx-auto p-6 pb-24 grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Notes Section */}
-            <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-2xl font-bold mb-4 text-gray-800">Workout Notes</h2>
-                <div className="mb-4 space-y-2">
+            <div className="bg-card backdrop-blur-xl border border-border p-8 rounded-3xl shadow-xl h-full flex flex-col">
+                <h2 className="text-3xl font-black mb-6 text-foreground tracking-tight">Workout Notes</h2>
+                <div className="mb-6 space-y-3">
                     <input
                         type="text"
                         placeholder="Title"
                         value={newNote.title}
                         onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-                        className="w-full p-2 border rounded"
+                        className="w-full p-4 bg-muted border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                     />
                     <textarea
                         placeholder="Content"
                         value={newNote.content}
                         onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
-                        className="w-full p-2 border rounded h-24"
+                        className="w-full p-4 bg-muted border border-border rounded-xl max-h-32 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all custom-scrollbar"
                     />
-                    <button onClick={addNote} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
+                    <button onClick={addNote} className="bg-primary text-black font-bold px-6 py-3 rounded-xl hover:bg-primary/90 w-full transition-all shadow-[0_0_15px_rgba(204,255,0,0.2)]">
                         Add Note
                     </button>
                 </div>
-                <div className="space-y-4 max-h-96 overflow-y-auto">
+                <div className="space-y-4 overflow-y-auto flex-grow custom-scrollbar pr-2 max-h-[500px]">
                     {notes.map(note => (
-                        <div key={note._id} className="bg-yellow-50 p-3 rounded border border-yellow-200">
-                            <h4 className="font-bold">{note.title}</h4>
-                            <p className="text-sm text-gray-700">{note.content}</p>
-                            <span className="text-xs text-gray-500">{new Date(note.createdAt).toLocaleDateString()}</span>
+                        <div key={note._id} className="bg-yellow-400/10 p-5 rounded-2xl border border-yellow-400/20 relative group hover:border-yellow-400/40 transition-all">
+                            <h4 className="font-bold text-yellow-100 text-lg mb-1">{note.title}</h4>
+                            <p className="text-sm text-yellow-50/80 mb-2 leading-relaxed">{note.content}</p>
+                            <span className="text-xs text-yellow-500/60 font-mono">{new Date(note.createdAt).toLocaleDateString()}</span>
                         </div>
                     ))}
                 </div>
             </div>
 
             {/* Tasks Section */}
-            <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-2xl font-bold mb-4 text-gray-800">Daily Tasks</h2>
-                <div className="flex gap-2 mb-4">
+            <div className="bg-card backdrop-blur-xl border border-border p-8 rounded-3xl shadow-xl h-full flex flex-col">
+                <h2 className="text-3xl font-black mb-6 text-foreground tracking-tight">Daily Tasks</h2>
+                <div className="flex gap-3 mb-6">
                     <input
                         type="text"
                         placeholder="New Task..."
                         value={newTask}
                         onChange={(e) => setNewTask(e.target.value)}
-                        className="flex-1 p-2 border rounded"
+                        className="flex-1 p-4 bg-muted border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                     />
-                    <button onClick={addTask} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    <button onClick={addTask} className="bg-secondary text-black font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all shadow-[0_0_15px_rgba(0,240,255,0.2)]">
                         Add
                     </button>
                 </div>
-                <ul className="space-y-2">
+                <ul className="space-y-3 overflow-y-auto flex-grow custom-scrollbar pr-2 max-h-[500px]">
                     {tasks.map(task => (
-                        <li key={task._id} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded">
+                        <li key={task._id} className="flex items-center gap-4 p-4 hover:bg-muted rounded-xl transition-all border border-transparent hover:border-border group">
                             <input
                                 type="checkbox"
                                 checked={task.isCompleted}
                                 onChange={() => toggleTask(task._id, task.isCompleted)}
-                                className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                                className="w-6 h-6 text-secondary rounded focus:ring-secondary bg-muted border-border cursor-pointer"
                             />
-                            <span className={task.isCompleted ? 'line-through text-gray-400' : 'text-gray-800'}>
+                            <span className={`text-lg font-medium transition-all ${task.isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                                 {task.content}
                             </span>
                         </li>

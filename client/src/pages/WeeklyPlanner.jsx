@@ -39,69 +39,95 @@ const WeeklyPlanner = () => {
         try {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
+
+            // Sanitize days: Ensure routineId is just an ID string, not an object
+            const sanitizedDays = plan.days.map(day => {
+                let rId = day.routineId;
+                if (rId && typeof rId === 'object') {
+                    rId = rId._id;
+                }
+                if (rId === '') {
+                    rId = null;
+                }
+                return {
+                    ...day,
+                    routineId: rId
+                };
+            });
+
+            // Normalize Date to start of the week (Monday)
+            const today = new Date();
+            const day = today.getDay();
+            const diff = today.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+            const monday = new Date(today.setDate(diff));
+            monday.setHours(0, 0, 0, 0);
+
             await axios.post('http://localhost:5000/api/v1/workouts/weekly-plan', {
-                weekStartDate: new Date(), // Should be start of current week
-                days: plan.days
+                weekStartDate: monday,
+                days: sanitizedDays
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert('Plan Saved!');
         } catch (err) {
             console.error(err);
-            alert('Error saving plan');
+            const message = err.response?.data?.message || 'Error saving plan';
+            alert(message);
         }
     };
 
     if (loading) return <div className="p-6">Loading planner...</div>;
 
     return (
-        <div className="container mx-auto p-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">Weekly Workout Planner</h2>
+        <div className="container mx-auto p-6 pb-24">
+            <h2 className="text-4xl font-black mb-8 text-foreground tracking-tight">Weekly Workout Planner</h2>
 
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="min-w-full">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="py-3 px-6 text-left font-bold text-gray-600">Day</th>
-                            <th className="py-3 px-6 text-left font-bold text-gray-600">Activity / Routine</th>
-                            <th className="py-3 px-6 text-center font-bold text-gray-600">Rest Day</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {plan.days.map((day, index) => (
-                            <tr key={day.dayOfWeek} className={day.isRestDay ? 'bg-gray-50' : ''}>
-                                <td className="py-4 px-6 font-medium text-gray-800">{day.dayOfWeek}</td>
-                                <td className="py-4 px-6">
-                                    <select
-                                        disabled={day.isRestDay}
-                                        value={day.routineId?._id || day.routineId || ''}
-                                        onChange={(e) => handleDayChange(index, 'routineId', e.target.value)}
-                                        className="w-full p-2 border rounded disabled:opacity-50"
-                                    >
-                                        <option value="">Select Routine</option>
-                                        {routines.map(r => (
-                                            <option key={r._id} value={r._id}>{r.name}</option>
-                                        ))}
-                                    </select>
-                                </td>
-                                <td className="py-4 px-6 text-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={day.isRestDay}
-                                        onChange={(e) => handleDayChange(index, 'isRestDay', e.target.checked)}
-                                        className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
-                                    />
-                                </td>
+            <div className="bg-card backdrop-blur-xl border border-border rounded-3xl overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full">
+                        <thead className="bg-muted border-b border-border">
+                            <tr>
+                                <th className="py-4 px-6 text-left font-bold text-muted-foreground uppercase tracking-wider text-sm">Day</th>
+                                <th className="py-4 px-6 text-left font-bold text-muted-foreground uppercase tracking-wider text-sm">Activity / Routine</th>
+                                <th className="py-4 px-6 text-center font-bold text-muted-foreground uppercase tracking-wider text-sm">Rest Day</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {plan.days.map((day, index) => (
+                                <tr key={day.dayOfWeek} className={`transition-colors hover:bg-muted ${day.isRestDay ? 'bg-muted' : ''}`}>
+                                    <td className="py-4 px-6 font-bold text-foreground">{day.dayOfWeek}</td>
+                                    <td className="py-4 px-6">
+                                        <select
+                                            disabled={day.isRestDay}
+                                            value={day.routineId?._id || day.routineId || ''}
+                                            onChange={(e) => handleDayChange(index, 'routineId', e.target.value)}
+                                            className="w-full p-3 bg-muted border border-border rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-30 disabled:cursor-not-allowed transition-all [&>option]:bg-background"
+                                        >
+                                            <option value="">Select Routine</option>
+                                            {routines.map(r => (
+                                                <option key={r._id} value={r._id}>{r.name}</option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                    <td className="py-4 px-6 text-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={day.isRestDay}
+                                            onChange={(e) => handleDayChange(index, 'isRestDay', e.target.checked)}
+                                            className="w-6 h-6 rounded border-border text-primary focus:ring-primary bg-muted"
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-8 flex justify-end">
                 <button
                     onClick={savePlan}
-                    className="bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700 transition duration-300"
+                    className="px-8 py-4 bg-primary text-black font-bold text-lg rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-[0_0_20px_rgba(204,255,0,0.3)] transform hover:scale-105"
                 >
                     Save Weekly Plan
                 </button>

@@ -1,35 +1,16 @@
-import axios from 'axios';
-import authService from './authService';
+import api from '../api';
 
-const API_URL = '/api/v1/scan/';
-
-// Configure axios with auth header
-const axiosInstance = axios.create({
-    baseURL: '', // Handled by proxy
-});
-
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const user = authService.getCurrentUser();
-        if (user && user.token) {
-            config.headers.Authorization = `Bearer ${user.token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+// API_URL handled in ../api.js
 
 // Scan Barcode
 const scanBarcode = async (barcode) => {
-    const response = await axiosInstance.post(API_URL, { barcode });
+    const response = await api.post('/api/v1/scan/', { barcode });
     return response.data;
 };
 
 // Get History
 const getHistory = async () => {
-    const response = await axiosInstance.get(API_URL + 'history');
+    const response = await api.get('/api/v1/scan/history');
     return response.data;
 };
 

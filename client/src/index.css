@@ -17,11 +17,12 @@
   --font-size: 16px;
   /* Light Theme Backgrounds */
   --background: #ffffff;
-  --foreground: #0f172a;
+  --foreground: #020617;
+  /* Slate 950 */
 
   /* Glass Cards */
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #020617;
 
   /* Neon Accents - Kept for branding, but adjusting contrast if needed */
   --primary: #CCFF00;
@@ -35,7 +36,8 @@
 
   /* Utility */
   --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  --muted-foreground: #334155;
+  /* Slate 700 */
 
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;

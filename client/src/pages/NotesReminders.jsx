@@ -88,7 +88,7 @@ const NotesReminders = () => {
                         onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
                         className="w-full p-4 bg-muted border border-border rounded-xl max-h-32 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all custom-scrollbar"
                     />
-                    <button onClick={addNote} className="bg-primary text-black font-bold px-6 py-3 rounded-xl hover:bg-primary/90 w-full transition-all shadow-[0_0_15px_rgba(204,255,0,0.2)]">
+                    <button onClick={addNote} className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-xl hover:bg-primary/90 w-full transition-all shadow-[0_0_15px_rgba(0,163,255,0.2)]">
                         Add Note
                     </button>
                 </div>
@@ -114,7 +114,7 @@ const NotesReminders = () => {
                         onChange={(e) => setNewTask(e.target.value)}
                         className="flex-1 p-4 bg-muted border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                     />
-                    <button onClick={addTask} className="bg-secondary text-black font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+                    <button onClick={addTask} className="bg-secondary text-primary-foreground font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all shadow-[0_0_15px_rgba(0,240,255,0.2)]">
                         Add
                     </button>
                 </div>

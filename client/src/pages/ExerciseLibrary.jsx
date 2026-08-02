@@ -67,7 +67,7 @@ const ExerciseLibrary = () => {
                         />
                         <button
                             onClick={fetchExercises}
-                            className="bg-primary text-black px-6 py-3 rounded-xl font-bold hover:bg-primary/90 transition-all duration-300"
+                            className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-bold hover:bg-primary/90 transition-all duration-300"
                         >
                             Search
                         </button>

@@ -27,18 +27,20 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/workouts" element={<Workouts />} />
-
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/scan" element={<ScanFood />} />
                 <Route path="/scan/history" element={<History />} />
 
                 {/* Workout Module Routes */}
+                <Route path="/workouts" element={<Workouts />}>
+                  <Route index element={<WorkoutSession />} />
+                  <Route path="session" element={<WorkoutSession />} />
+                  <Route path="exercises" element={<ExerciseLibrary />} />
+                  <Route path="planner" element={<WeeklyPlanner />} />
+                </Route>
+                
                 <Route path="/workouts/profile" element={<WorkoutProfile />} />
-                <Route path="/workouts/exercises" element={<ExerciseLibrary />} />
-                <Route path="/workouts/session" element={<WorkoutSession />} />
-                <Route path="/workouts/planner" element={<WeeklyPlanner />} />
                 <Route path="/workouts/dashboard" element={<ProgressDashboard />} />
                 <Route path="/workouts/notes" element={<NotesReminders />} />
                 <Route path="/diet/dashboard" element={<DietDashboard />} />

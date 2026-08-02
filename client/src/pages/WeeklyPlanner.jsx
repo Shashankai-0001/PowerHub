@@ -127,7 +127,7 @@ const WeeklyPlanner = () => {
             <div className="mt-8 flex justify-end">
                 <button
                     onClick={savePlan}
-                    className="px-8 py-4 bg-primary text-black font-bold text-lg rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-[0_0_20px_rgba(204,255,0,0.3)] transform hover:scale-105"
+                    className="px-8 py-4 bg-primary text-primary-foreground font-bold text-lg rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-[0_0_20px_rgba(0,163,255,0.3)] transform hover:scale-105"
                 >
                     Save Weekly Plan
                 </button>

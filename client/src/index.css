@@ -15,49 +15,85 @@
 
 :root {
   --font-size: 16px;
-  /* Light Theme Backgrounds */
-  --background: #ffffff;
-  --foreground: #020617;
-  /* Slate 950 */
+  /* Light Matte Backgrounds */
+  --background: #F8FAFC;
+  --foreground: #0F172A;
 
-  /* Glass Cards */
-  --card: #ffffff;
-  --card-foreground: #020617;
+  /* Solid Light Cards */
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
 
-  /* Neon Accents - Kept for branding, but adjusting contrast if needed */
-  --primary: #CCFF00;
-  --primary-foreground: #000000;
+  /* Electric Blue Accents */
+  --primary: #00A3FF;
+  --primary-foreground: #FFFFFF;
 
-  --secondary: #00F0FF;
-  --secondary-foreground: #000000;
+  /* Secondary */
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
 
-  --accent: #7000FF;
-  --accent-foreground: #ffffff;
+  /* Accent */
+  --accent: #FFB800;
+  --accent-foreground: #000000;
 
   /* Utility */
-  --muted: #f1f5f9;
-  --muted-foreground: #334155;
-  /* Slate 700 */
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
 
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
 
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #ccff00;
+  --border: #E2E8F0;
+  --input: #FFFFFF;
+  --ring: #00A3FF;
 
   --radius: 1rem;
 
   /* Chart Colors */
-  --chart-1: #CCFF00;
-  --chart-2: #00F0FF;
-  --chart-3: #7000FF;
-  --chart-4: #FF003C;
-  --chart-5: #FFD600;
+  --chart-1: #00A3FF;
+  --chart-2: #FFB800;
+  --chart-3: #94A3B8;
+  --chart-4: #EF4444;
+  --chart-5: #E2E8F0;
 }
 
 .dark {
-  /* Inherit root for now, as we are defaulting to dark mode aesthetic */
+  /* Sleek Dark Matte Backgrounds */
+  --background: #171A21;
+  --foreground: #F8FAFC;
+
+  /* Solid Dark Cards */
+  --card: #1E232B;
+  --card-foreground: #F8FAFC;
+
+  /* Electric Blue Accents */
+  --primary: #00A3FF;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary (Darker Blue) */
+  --secondary: #2A3A54;
+  --secondary-foreground: #FFFFFF;
+
+  /* Accent */
+  --accent: #FFB800;
+  --accent-foreground: #000000;
+
+  /* Utility */
+  --muted: #2A313C;
+  --muted-foreground: #94A3B8;
+
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #2A313C;
+  --input: #2A313C;
+  --ring: #00A3FF;
+
+  /* Chart Colors */
+  --chart-1: #00A3FF;
+  --chart-2: #FFB800;
+  --chart-3: #2A3A54;
+  --chart-4: #EF4444;
+  --chart-5: #1E232B;
 }
 
 @theme inline {
@@ -94,7 +130,17 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: var(--background);
+    background-image: linear-gradient(to bottom, rgba(248, 250, 252, 0.85), rgba(248, 250, 252, 0.98)), url('/bg-fitness.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .dark body {
+    background-image: linear-gradient(to bottom, rgba(23, 26, 33, 0.85), rgba(23, 26, 33, 0.98)), url('/bg-fitness.png');
   }
 
   html {

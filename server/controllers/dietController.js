@@ -254,4 +254,99 @@ exports.getAnalytics = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Failed to generate analytics" });
   }
-}; 
+};
+
+const { meals } = require("../services/mealDatabase");
+
+exports.generateMealPlan = async (req, res) => {
+  try {
+    const profile = await UserWorkoutProfile.findOne({ userId: req.user.id });
+    const defaultProfile = { weight: 70, height: 170, age: 30, gender: 'male', fitnessGoal: 'maintenance', activityLevel: 'moderate' };
+    const safeProfile = profile || defaultProfile;
+
+    const weight = safeProfile.weight || 70;
+    const height = safeProfile.height || 170;
+    const age = safeProfile.age || 30;
+    const gender = safeProfile.gender || 'male';
+
+    let goal = 'maintenance';
+    const pGoal = safeProfile.fitnessGoal;
+    if (pGoal === 'weight_gain' || pGoal === 'strength') goal = 'muscle_gain';
+    else if (pGoal === 'weight_loss') goal = 'weight_loss';
+    else if (safeProfile.goal) goal = safeProfile.goal;
+
+    const activityLevel = safeProfile.activityLevel || inferActivityLevelFromDuration(safeProfile.dailyDuration);
+
+    const bmr = calculateBMR({ weight, height, age, gender });
+    const tdee = calculateTDEE(bmr, activityLevel);
+    const standardMacros = calculateMacros(tdee, goal);
+
+    const proteinGrams = Math.round(weight * 2.0);
+    const proteinKcal = proteinGrams * 4;
+    const remainingKcal = tdee - proteinKcal;
+    const totalRatio = standardMacros.carbs + standardMacros.fats;
+    const carbsShare = standardMacros.carbs / totalRatio;
+    const fatsShare = standardMacros.fats / totalRatio;
+    const carbsKcal = Math.round(remainingKcal * carbsShare);
+    const fatsKcal = Math.round(remainingKcal * fatsShare);
+    const carbsGrams = Math.round(carbsKcal / 4);
+    const fatsGrams = Math.round(fatsKcal / 9);
+
+    const targetCalories = Math.round(tdee);
+    const targetProtein = proteinGrams;
+    const targetCarbs = carbsGrams;
+    const targetFats = fatsGrams;
+
+    // Simple matching algorithm to select meals
+    const breakfastOptions = meals.filter(m => m.type === 'breakfast');
+    const lunchOptions = meals.filter(m => m.type === 'lunch');
+    const dinnerOptions = meals.filter(m => m.type === 'dinner');
+    const snackOptions = meals.filter(m => m.type === 'snack');
+
+    // Pick random options for now, scale them to hit targets
+    const breakfast = breakfastOptions[Math.floor(Math.random() * breakfastOptions.length)];
+    const lunch = lunchOptions[Math.floor(Math.random() * lunchOptions.length)];
+    const dinner = dinnerOptions[Math.floor(Math.random() * dinnerOptions.length)];
+    const snack = snackOptions[Math.floor(Math.random() * snackOptions.length)];
+
+    const selectedMeals = [breakfast, lunch, dinner, snack];
+    
+    let totalCals = selectedMeals.reduce((acc, m) => acc + m.calories, 0);
+    
+    // Scale factor to roughly match TDEE
+    const scaleFactor = targetCalories / totalCals;
+
+    const scaledMeals = selectedMeals.map(m => ({
+        ...m,
+        calories: Math.round(m.calories * scaleFactor),
+        protein: Math.round(m.protein * scaleFactor),
+        carbs: Math.round(m.carbs * scaleFactor),
+        fats: Math.round(m.fats * scaleFactor),
+    }));
+
+    const finalCals = scaledMeals.reduce((acc, m) => acc + m.calories, 0);
+    const finalProtein = scaledMeals.reduce((acc, m) => acc + m.protein, 0);
+    const finalCarbs = scaledMeals.reduce((acc, m) => acc + m.carbs, 0);
+    const finalFats = scaledMeals.reduce((acc, m) => acc + m.fats, 0);
+
+    res.json({
+      target: {
+        calories: targetCalories,
+        protein: targetProtein,
+        carbs: targetCarbs,
+        fats: targetFats
+      },
+      actual: {
+        calories: finalCals,
+        protein: finalProtein,
+        carbs: finalCarbs,
+        fats: finalFats
+      },
+      meals: scaledMeals
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to generate meal plan" });
+  }
+};

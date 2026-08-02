@@ -33,7 +33,7 @@ const ExerciseCard = ({ exercise, onSelect, onAdd }) => {
                 {onSelect && (
                     <button
                         onClick={() => onSelect(exercise)}
-                        className="w-full bg-primary text-black py-3 rounded-xl font-bold hover:bg-primary/90 transition duration-300 shadow-[0_0_15px_rgba(204,255,0,0.2)]"
+                        className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold hover:bg-primary/90 transition duration-300 shadow-[0_0_15px_rgba(0,163,255,0.2)]"
                     >
                         View Details
                     </button>

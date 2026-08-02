@@ -8,7 +8,7 @@ export function StatCard({ title, value, subtitle, icon: Icon, trend, color, del
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay, duration: 0.4 }}
             whileHover={{ y: -5, scale: 1.02 }}
-            className="group relative overflow-hidden rounded-2xl bg-card border border-border p-6 backdrop-blur-md transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_30px_-10px_rgba(204,255,0,0.2)]"
+            className="group relative overflow-hidden rounded-2xl bg-card border border-border p-6 backdrop-blur-md transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_30px_-10px_rgba(0,163,255,0.2)]"
         >
             {/* Background Gradient Blob */}
             <div className={`absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 rounded-full bg-gradient-to-br ${color} opacity-10 blur-2xl group-hover:opacity-20 transition-opacity duration-500`} />

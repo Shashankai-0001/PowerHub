@@ -98,10 +98,10 @@ const Login = () => {
                         <div>
                             <button
                                 type="submit"
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-black bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:scale-[1.02]"
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:scale-[1.02]"
                             >
                                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                                    <ArrowRight className="h-5 w-5 text-black/50 group-hover:text-black transition-colors" />
+                                    <ArrowRight className="h-5 w-5 text-primary-foreground/50 group-hover:text-primary-foreground transition-colors" />
                                 </span>
                                 Sign in
                             </button>

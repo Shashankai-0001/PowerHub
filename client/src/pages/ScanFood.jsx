@@ -48,7 +48,7 @@ const ScanFood = () => {
                         <div className="text-center">
                             <button
                                 onClick={startScan}
-                                className="bg-primary text-black font-bold py-4 px-8 rounded-xl shadow-[0_0_20px_rgba(204,255,0,0.3)] hover:bg-primary/90 transition duration-300 w-full md:w-auto mb-6 transform hover:scale-105"
+                                className="bg-primary text-primary-foreground font-bold py-4 px-8 rounded-xl shadow-[0_0_20px_rgba(0,163,255,0.3)] hover:bg-primary/90 transition duration-300 w-full md:w-auto mb-6 transform hover:scale-105"
                             >
                                 Scan Barcode
                             </button>
@@ -75,7 +75,7 @@ const ScanFood = () => {
                     )}
 
                     {scanning && (
-                        <div className="rounded-xl overflow-hidden border border-primary/50 shadow-[0_0_30px_rgba(204,255,0,0.1)]">
+                        <div className="rounded-xl overflow-hidden border border-primary/50 shadow-[0_0_30px_rgba(0,163,255,0.1)]">
                             <BarcodeScanner onDetected={handleDetected} />
                         </div>
                     )}
@@ -126,7 +126,7 @@ const ScanFood = () => {
                                 {result.nutritionAvailable ? (
                                     <div className="flex items-center mb-8 bg-muted p-4 rounded-2xl border border-border">
                                         <div className={`
-                                        w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-black text-black shadow-lg mr-6
+                                        w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-black text-primary-foreground shadow-lg mr-6
                                         ${result.healthScore >= 70 ? 'bg-green-400 shadow-green-400/20' : result.healthScore >= 40 ? 'bg-yellow-400 shadow-yellow-400/20' : 'bg-red-400 shadow-red-400/20'}
                                     `}>
                                             {result.healthScore}

@@ -39,7 +39,7 @@ const Timer = ({ duration, onComplete }) => {
             <div className="flex gap-3 justify-center">
                 <button
                     onClick={toggle}
-                    className={`px-6 py-2 rounded-xl font-bold transition-all shadow-lg ${isActive ? 'bg-yellow-400 text-black shadow-yellow-400/20' : 'bg-primary text-black shadow-primary/20 hover:scale-105'}`}
+                    className={`px-6 py-2 rounded-xl font-bold transition-all shadow-lg ${isActive ? 'bg-yellow-400 text-primary-foreground shadow-yellow-400/20' : 'bg-primary text-primary-foreground shadow-primary/20 hover:scale-105'}`}
                 >
                     {isActive ? 'Pause' : 'Start'}
                 </button>

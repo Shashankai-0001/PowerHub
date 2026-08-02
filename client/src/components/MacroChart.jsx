@@ -1,12 +1,8 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
-const data = [
-    { name: 'Protein', value: 30, color: '#00C853' },
-    { name: 'Carbs', value: 45, color: '#64DD17' },
-    { name: 'Fats', value: 25, color: '#FF6B00' },
-];
+export function MacroChart({ data }) {
+    if (!data || data.length === 0) return <div className="h-[200px] flex items-center justify-center text-muted-foreground">No data available</div>;
 
-export function MacroChart() {
     return (
         <div>
             <ResponsiveContainer width="100%" height={200}>

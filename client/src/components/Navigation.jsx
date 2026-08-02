@@ -4,6 +4,8 @@ import { motion } from 'motion/react';
 import { useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 
+import { ThemeToggle } from './ThemeToggle';
+
 const navItems = [
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/workouts', label: 'Workouts', icon: Dumbbell },
@@ -31,7 +33,7 @@ export function Navigation() {
                             <div className="relative w-10 h-10 flex items-center justify-center">
                                 <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg group-hover:blur-xl transition-all duration-300" />
                                 <div className="relative w-full h-full rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center border border-border group-hover:scale-110 transition-transform duration-300">
-                                    <Dumbbell className="w-5 h-5 text-black" />
+                                    <Dumbbell className="w-5 h-5 text-primary-foreground" />
                                 </div>
                             </div>
                             <span className="text-2xl font-bold text-foreground tracking-tight">
@@ -39,10 +41,11 @@ export function Navigation() {
                             </span>
                         </Link>
                         <div className="flex items-center space-x-4">
+                            <ThemeToggle />
                             <Link to="/login" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
                                 Log In
                             </Link>
-                            <Link to="/register" className="bg-primary text-black px-4 py-2 rounded-lg font-bold hover:bg-primary/90 transition-colors">
+                            <Link to="/register" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold hover:bg-primary/90 transition-colors">
                                 Get Started
                             </Link>
                         </div>
@@ -63,7 +66,7 @@ export function Navigation() {
                             <div className="relative w-10 h-10 flex items-center justify-center">
                                 <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg group-hover:blur-xl transition-all duration-300" />
                                 <div className="relative w-full h-full rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center border border-border group-hover:scale-110 transition-transform duration-300">
-                                    <Dumbbell className="w-5 h-5 text-black" />
+                                    <Dumbbell className="w-5 h-5 text-primary-foreground" />
                                 </div>
                             </div>
                             <span className="text-2xl font-bold text-foreground tracking-tight">
@@ -95,7 +98,7 @@ export function Navigation() {
                                         {isActive && (
                                             <motion.div
                                                 layoutId="activeTab"
-                                                className="absolute -bottom-[26px] left-0 right-0 h-[2px] bg-primary shadow-[0_0_10px_rgba(204,255,0,0.5)]"
+                                                className="absolute -bottom-[26px] left-0 right-0 h-[2px] bg-primary shadow-[0_0_10px_rgba(0,163,255,0.5)]"
                                                 initial={false}
                                                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                                             />
@@ -107,7 +110,8 @@ export function Navigation() {
 
                         {/* User Profile */}
                         <div className="hidden md:flex items-center space-x-4 pl-6 border-l border-border">
-                            <div className="text-right">
+                            <ThemeToggle />
+                            <div className="text-right ml-2">
                                 <p className="text-sm font-bold text-foreground leading-none mb-1">{user.name}</p>
                                 <p className="text-xs text-primary font-medium tracking-wide">MEMBER</p>
                             </div>

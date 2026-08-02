@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Timer from '../components/Timer';
-import Stopwatch from '../components/Stopwatch';
 import { useNavigate } from 'react-router-dom';
-import { Play, Pause, SkipForward, Square, CheckSquare, Flag, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, Pause, SkipForward, Square, Check, Flag, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from 'motion/react';
 
 const WorkoutSession = () => {
     const navigate = useNavigate();
     const [routine, setRoutine] = useState(null);
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [completedSets, setCompletedSets] = useState({}); // Map of exerciseIndex-setIndex -> boolean
-    const [phase, setPhase] = useState('WORK'); // 'WORK' or 'REST'
+    const [completedSets, setCompletedSets] = useState({});
+    const [phase, setPhase] = useState('WORK');
     const [timeLeft, setTimeLeft] = useState(30);
     const [isPaused, setIsPaused] = useState(false);
     const [hasStarted, setHasStarted] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
+    const [sessionStartTime, setSessionStartTime] = useState(null);
 
     useEffect(() => {
         fetchRoutine();
@@ -27,10 +26,8 @@ const WorkoutSession = () => {
             interval = setInterval(() => {
                 setTimeLeft((prev) => {
                     if (prev > 1) return prev - 1;
-
-                    // Timer hit 0, handle transition
                     handlePhaseTransition();
-                    return 0; // Will be reset in handlePhaseTransition
+                    return 0;
                 });
             }, 1000);
         }
@@ -38,20 +35,17 @@ const WorkoutSession = () => {
     }, [loading, routine, isPaused, phase, currentExerciseIndex, hasStarted]);
 
     const handlePhaseTransition = () => {
-        if (!routine) return; // Ensure routine is loaded
+        if (!routine) return;
 
         if (phase === 'WORK') {
-            // Switch to Rest
             setPhase('REST');
-            setTimeLeft(10); // 10 seconds rest
+            setTimeLeft(10);
         } else {
-            // Switch to Work (Next Exercise)
             if (currentExerciseIndex < routine.exercises.length - 1) {
                 setCurrentExerciseIndex((prev) => prev + 1);
                 setPhase('WORK');
-                setTimeLeft(30); // 30 seconds work
+                setTimeLeft(30);
             } else {
-                // Workout Finished
                 setIsPaused(true);
                 handleFinishWorkout();
             }
@@ -77,7 +71,6 @@ const WorkoutSession = () => {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
 
-            // 1. Fetch Default Routine First
             let currentRoutine = null;
             const res = await axios.get('http://localhost:5000/api/v1/workouts/routines/generate', {
                 headers: { Authorization: `Bearer ${token}` }
@@ -91,7 +84,6 @@ const WorkoutSession = () => {
                 currentRoutine = fullRoutineRes.data;
             }
 
-            // 2. Check & Merge Custom Queue
             const customQueue = JSON.parse(localStorage.getItem('activeWorkoutQueue') || '[]');
 
             if (customQueue.length > 0) {
@@ -111,14 +103,11 @@ const WorkoutSession = () => {
                         exercises: formattedCustomExercises
                     };
                 }
-
-                // Keep queue until finished
             }
 
             setRoutine(currentRoutine);
         } catch (err) {
             console.error(err);
-            alert("Failed to load workout.");
         } finally {
             setLoading(false);
         }
@@ -129,39 +118,9 @@ const WorkoutSession = () => {
         setCompletedSets(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
-    const handleRemoveExercise = (index) => {
-        if (routine.exercises.length <= 1) {
-            alert("You cannot remove the last exercise!");
-            return;
-        }
-        const updatedExercises = routine.exercises.filter((_, i) => i !== index);
-        setRoutine({ ...routine, exercises: updatedExercises });
-
-        // Adjust current index if needed
-        if (currentExerciseIndex >= updatedExercises.length) {
-            setCurrentExerciseIndex(updatedExercises.length - 1);
-        } else if (currentExerciseIndex > index) {
-            setCurrentExerciseIndex(prev => prev - 1);
-        }
-    };
-
-    const handleMoveExercise = (index, direction) => {
-        const newExercises = [...routine.exercises];
-        const targetIndex = direction === 'up' ? index - 1 : index + 1;
-
-        if (targetIndex < 0 || targetIndex >= newExercises.length) return;
-
-        // Swap
-        [newExercises[index], newExercises[targetIndex]] = [newExercises[targetIndex], newExercises[index]];
-
-        setRoutine({ ...routine, exercises: newExercises });
-
-        // Update current index to follow the exercise if it was the active one
-        if (currentExerciseIndex === index) {
-            setCurrentExerciseIndex(targetIndex);
-        } else if (currentExerciseIndex === targetIndex) {
-            setCurrentExerciseIndex(index);
-        }
+    const handleStartSession = () => {
+        setHasStarted(true);
+        setSessionStartTime(Date.now());
     };
 
     const handleFinishWorkout = async () => {
@@ -170,29 +129,38 @@ const WorkoutSession = () => {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
 
-            // Construct payload
+            // Calculate accurate duration
+            let actualDurationMinutes = 1; // Default minimum 1 minute
+            if (sessionStartTime) {
+                const diffMs = Date.now() - sessionStartTime;
+                actualDurationMinutes = Math.max(1, Math.round(diffMs / 60000));
+            }
+
+            // Calculate dynamic calories based on duration and sets completed
+            const setsCompletedCount = Object.values(completedSets).filter(Boolean).length;
+            // Base calories + extra for completed sets (rough estimate)
+            const calculatedCalories = Math.round((actualDurationMinutes * 6) + (setsCompletedCount * 5));
+
             const exercisesCompleted = routine.exercises.map((ex, idx) => ({
                 exercise: ex.exercise._id,
                 sets: Array(ex.sets).fill(0).map((_, setIdx) => ({
-                    reps: parseInt(ex.reps) || 0, // Simplified
-                    weight: 0, // Should be from input
+                    reps: parseInt(ex.reps) || 0,
+                    weight: 0,
                     completed: !!completedSets[`${idx}-${setIdx}`]
                 }))
             }));
 
             await axios.post('http://localhost:5000/api/v1/workouts/sessions', {
                 routineId: routine._id,
-                duration: 45, // Should be calculated from start/end time
-                caloriesBurned: 300, // Dummy value
+                duration: actualDurationMinutes,
+                caloriesBurned: calculatedCalories,
                 exercisesCompleted,
                 notes: "Great workout!"
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            // Clear custom queue now that it is saved
             localStorage.removeItem('activeWorkoutQueue');
-
             alert('Workout Saved!');
             navigate('/workouts/dashboard');
         } catch (err) {
@@ -202,20 +170,20 @@ const WorkoutSession = () => {
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
+        <div className="min-h-[80vh] flex items-center justify-center bg-transparent">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary shadow-[0_0_20px_var(--primary)]"></div>
         </div>
     );
 
     if (!routine) return (
-        <div className="min-h-screen flex items-center justify-center p-6">
-            <div className="bg-card backdrop-blur-xl p-8 rounded-3xl shadow-2xl text-center max-w-md border border-border">
-                <div className="text-6xl mb-6 animate-bounce">🔍</div>
-                <h2 className="text-3xl font-black mb-4 text-foreground tracking-tight">No Routine Found</h2>
-                <p className="text-muted-foreground mb-8 leading-relaxed">We couldn't generate a routine for you. Please update your profile to help us create the perfect plan.</p>
+        <div className="min-h-[80vh] flex items-center justify-center p-6">
+            <div className="bg-card/50 backdrop-blur-xl p-12 rounded-[3rem] shadow-2xl text-center max-w-lg border border-border">
+                <div className="text-7xl mb-8 animate-bounce">🔍</div>
+                <h2 className="text-4xl font-black mb-4 text-foreground tracking-tight">No Routine Found</h2>
+                <p className="text-lg text-muted-foreground mb-10 leading-relaxed font-medium">We couldn't generate a routine. Please update your fitness profile to help us tailor the perfect plan.</p>
                 <button
                     onClick={() => navigate('/workouts/profile')}
-                    className="bg-primary text-black px-8 py-4 rounded-xl font-bold hover:bg-primary/90 transition duration-300 shadow-[0_0_20px_rgba(204,255,0,0.3)] w-full"
+                    className="w-full bg-primary text-primary-foreground px-8 py-5 rounded-2xl font-black text-xl hover:bg-primary/90 transition-all duration-300 shadow-[0_0_30px_rgba(0,163,255,0.3)] hover:-translate-y-1"
                 >
                     Setup Profile
                 </button>
@@ -227,250 +195,297 @@ const WorkoutSession = () => {
     const progress = ((currentExerciseIndex + 1) / routine.exercises.length) * 100;
 
     return (
-        <div className="min-h-screen pb-24">
-            {/* Header / Progress Bar */}
-            <div className="bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-20">
-                <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="relative min-h-[90vh] pb-32 pt-8 overflow-hidden">
+            {/* Animated Background Glow */}
+            <div className={`fixed inset-0 transition-colors duration-1000 opacity-[0.03] pointer-events-none blur-3xl ${phase === 'REST' ? 'bg-orange-500' : 'bg-primary'}`} />
+
+            <div className="container mx-auto px-4 max-w-6xl relative z-10">
+                {/* Header Section */}
+                <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6"
+                >
                     <div>
-                        <h1 className="text-xl font-bold text-foreground">{routine.name}</h1>
-                        <p className="text-sm text-muted-foreground">Exercise {currentExerciseIndex + 1} of {routine.exercises.length}</p>
+                        <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter mb-2">{routine.name}</h1>
+                        <p className="text-muted-foreground font-bold tracking-wide uppercase text-sm">
+                            Exercise {currentExerciseIndex + 1} of {routine.exercises.length} <span className="mx-3 text-border">•</span> {Math.round(progress)}% Complete
+                        </p>
                     </div>
-                    <button
-                        onClick={handleFinishWorkout}
-                        className="bg-primary text-black px-6 py-2 rounded-full font-bold hover:bg-primary/90 transition duration-300 shadow-lg shadow-primary/20 text-sm flex items-center gap-2"
-                    >
-                        <Flag className="w-4 h-4 ml-1" /> Finish
-                    </button>
-                </div>
-                <div className="h-1 bg-muted w-full">
-                    <div className="h-1 bg-primary transition-all duration-500 shadow-[0_0_10px_var(--primary)]" style={{ width: `${progress}%` }}></div>
-                </div>
-            </div>
+                    
+                    <div className="w-full md:w-72">
+                        <div className="h-2 bg-muted rounded-full overflow-hidden border border-border/50">
+                            <div className="h-full bg-primary transition-all duration-700 ease-out shadow-[0_0_10px_var(--primary)]" style={{ width: `${progress}%` }}></div>
+                        </div>
+                    </div>
+                </motion.div>
 
-            <div className="container mx-auto px-4 py-6 max-w-5xl">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
-
-                        {/* Exercise Card & Timer */}
-                        <div className={`bg-card backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-border transition-all duration-500 ${phase === 'REST' ? 'border-orange-500/50 shadow-[0_0_30px_rgba(249,115,22,0.1)]' : 'border-primary/20'}`}>
-
-                            {/* Central Timer Display */}
-                            <div className="relative py-12 flex flex-col items-center justify-center bg-muted/30 text-center">
-                                {!hasStarted ? (
-                                    <button
-                                        onClick={() => setHasStarted(true)}
-                                        className="group relative inline-flex items-center justify-center px-10 py-6 overflow-hidden font-bold text-foreground transition-all duration-300 bg-primary/20 rounded-full hover:bg-primary/30 focus:outline-none ring-offset-2 focus:ring-2 ring-primary shadow-[0_0_30px_rgba(204,255,0,0.3)]"
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+                    {/* Main Stage */}
+                    <div className="lg:col-span-8 space-y-8">
+                        
+                        {/* Active Exercise Card */}
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                            className={`relative overflow-hidden rounded-[3rem] bg-card/60 backdrop-blur-2xl border transition-all duration-700 shadow-2xl ${phase === 'REST' ? 'border-orange-500/30 shadow-[0_0_50px_rgba(249,115,22,0.1)]' : 'border-border'}`}
+                        >
+                            {/* Immersive Header inside Card */}
+                            <div className={`px-8 py-16 md:px-12 md:py-24 relative overflow-hidden flex flex-col items-center text-center transition-all duration-700 ${!hasStarted ? 'py-32' : ''}`}>
+                                 {/* subtle pulsing glow */}
+                                 <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[120px] opacity-[0.15] pointer-events-none transition-colors duration-1000 ${phase === 'REST' ? 'bg-orange-500' : 'bg-primary'}`} />
+                                 
+                                 {!hasStarted ? (
+                                    <motion.button 
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={handleStartSession}
+                                        className="group relative flex flex-col items-center gap-8"
                                     >
-                                        <span className="absolute inset-0 border-0 group-hover:border-[4px] border-primary ease-linear duration-100 transition-all rounded-full"></span>
-                                        <div className="flex items-center gap-3">
-                                            <Play className="w-8 h-8 fill-current" />
-                                            <span className="text-3xl font-black text-primary uppercase tracking-widest group-hover:text-foreground transition-colors">Start</span>
+                                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-primary/10 flex items-center justify-center relative shadow-[0_0_50px_rgba(0,163,255,0.2)]">
+                                            <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-[spin_4s_linear_infinite]" />
+                                            <div className="absolute inset-2 rounded-full border border-primary/20 animate-[spin_3s_linear_infinite_reverse]" />
+                                            <Play className="w-12 h-12 md:w-16 md:h-16 fill-primary text-primary ml-2 group-hover:scale-110 transition-transform duration-300" />
                                         </div>
-                                    </button>
-                                ) : (
-                                    <>
-                                        <div className={`text-8xl font-black font-mono tracking-widest mb-2 ${phase === 'REST' ? 'text-orange-500' : 'text-primary'}`}>
-                                            {formatTime(timeLeft)}
-                                        </div>
-                                        <div className={`px-4 py-1.5 rounded-full text-xs font-bold border uppercase tracking-widest ${phase === 'REST'
-                                            ? 'bg-orange-500/20 text-orange-500 border-orange-500/30'
-                                            : 'bg-primary/20 text-primary border-primary/30'
-                                            }`}>
-                                            {phase === 'REST' ? 'Rest Time' : 'Active Interval'}
-                                        </div>
-
-                                        {/* Controls */}
-                                        <div className="absolute bottom-4 right-4 flex gap-2">
-                                            <button
-                                                onClick={handleTogglePause}
-                                                className="p-3 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-all backdrop-blur-md"
-                                                title={isPaused ? "Resume" : "Pause"}
+                                        <span className="text-3xl md:text-4xl font-black text-foreground tracking-widest uppercase">Start Session</span>
+                                    </motion.button>
+                                 ) : (
+                                     <>
+                                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter mb-8 relative z-10 leading-tight">
+                                            {currentExercise.exercise.name}
+                                        </h2>
+                                        
+                                        {/* Sleek Timer */}
+                                        <div className="relative z-10 w-full">
+                                            <div className={`text-[6rem] md:text-[8rem] lg:text-[10rem] font-black font-mono tracking-tighter leading-none transition-colors duration-500 ${phase === 'REST' ? 'text-orange-500 drop-shadow-[0_0_40px_rgba(249,115,22,0.3)]' : 'text-primary drop-shadow-[0_0_40px_rgba(0,163,255,0.3)]'}`}>
+                                                {formatTime(timeLeft)}
+                                            </div>
+                                            <motion.div 
+                                                key={phase}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="mt-6 inline-flex items-center gap-3 px-6 py-3 rounded-full bg-background/50 border border-border backdrop-blur-md shadow-xl"
                                             >
-                                                {isPaused ? <Play className="w-5 h-5 fill-current" /> : <Pause className="w-5 h-5 fill-current" />}
-                                            </button>
-                                            <button
-                                                onClick={handleSkip}
-                                                className="p-3 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-all backdrop-blur-md font-bold text-xs"
-                                                title="Skip"
-                                            >
-                                                <SkipForward className="w-5 h-5" />
-                                            </button>
+                                                <div className={`w-3 h-3 rounded-full animate-pulse ${phase === 'REST' ? 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,1)]' : 'bg-primary shadow-[0_0_10px_rgba(0,163,255,1)]'}`} />
+                                                <span className="text-sm font-black uppercase tracking-widest text-muted-foreground">
+                                                    {phase === 'REST' ? 'Rest Phase' : 'Active Interval'}
+                                                </span>
+                                            </motion.div>
                                         </div>
-                                    </>
-                                )}
+                                     </>
+                                 )}
                             </div>
 
-                            <div className="p-6 md:p-8">
-                                <div className="flex justify-between items-start mb-6">
-                                    <h2 className="text-3xl font-black text-foreground tracking-tight">{currentExercise.exercise.name}</h2>
-                                    <div className="text-right">
-                                        <div className="text-3xl font-black text-primary">{currentExercise.sets}</div>
-                                        <div className="text-xs text-gray-500 uppercase tracking-widest font-bold">Sets</div>
-                                    </div>
-                                </div>
-
-                                <div className="p-4 rounded-xl bg-muted/50 border-l-4 border-secondary mb-8">
-                                    <p className="text-muted-foreground leading-relaxed italic">
+                            {/* Instruction / Sets Section */}
+                            {hasStarted && (
+                            <div className="p-8 md:p-12 border-t border-border/50 bg-muted/10 relative z-10">
+                                
+                                <div className="mb-10">
+                                    <p className="text-lg md:text-xl text-muted-foreground leading-relaxed italic border-l-4 border-primary pl-6 font-medium">
                                         "{currentExercise.exercise.instructions[0]}"
                                     </p>
                                 </div>
 
-                                {/* Sets Tracker */}
-                                <div className="space-y-3">
-                                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2"><span className="text-primary">#</span> Track Sets</h3>
-                                    {Array.from({ length: currentExercise.sets }).map((_, idx) => {
-                                        const isCompleted = !!completedSets[`${currentExerciseIndex}-${idx}`];
-                                        return (
-                                            <div
-                                                key={idx}
-                                                onClick={() => handleSetToggle(currentExerciseIndex, idx)}
-                                                className={`flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-200 border ${isCompleted
-                                                    ? 'bg-primary/20 border-primary'
-                                                    : 'border-border bg-muted/50 hover:bg-muted'}`}
-                                            >
-                                                <div className="flex items-center gap-4">
-                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isCompleted ? 'bg-primary text-black' : 'bg-muted text-muted-foreground'
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-end mb-8">
+                                        <h3 className="text-3xl font-black text-foreground tracking-tight">Track Sets</h3>
+                                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{currentExercise.sets} Total Sets</span>
+                                    </div>
+
+                                    {/* Animated Set Pills */}
+                                    <div className="space-y-4">
+                                        {Array.from({ length: currentExercise.sets }).map((_, idx) => {
+                                            const isCompleted = !!completedSets[`${currentExerciseIndex}-${idx}`];
+                                            return (
+                                                <motion.div
+                                                    key={idx}
+                                                    onClick={() => handleSetToggle(currentExerciseIndex, idx)}
+                                                    whileHover={{ scale: 1.01 }}
+                                                    whileTap={{ scale: 0.99 }}
+                                                    className={`group flex items-center justify-between p-6 rounded-[2rem] cursor-pointer transition-all duration-300 border-2 ${
+                                                        isCompleted 
+                                                        ? 'bg-primary/5 border-primary/50 shadow-[inset_0_0_30px_rgba(0,163,255,0.05)]' 
+                                                        : 'bg-card border-border hover:border-muted-foreground/30 shadow-lg'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-6">
+                                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-xl transition-colors duration-300 ${
+                                                            isCompleted ? 'bg-primary text-primary-foreground shadow-[0_0_15px_rgba(0,163,255,0.5)]' : 'bg-muted text-muted-foreground group-hover:text-foreground'
                                                         }`}>
-                                                        {idx + 1}
+                                                            {idx + 1}
+                                                        </div>
+                                                        <div>
+                                                            <span className={`block text-2xl font-black transition-colors ${isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                                                {currentExercise.reps} Reps
+                                                            </span>
+                                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1 block">Target</span>
+                                                        </div>
                                                     </div>
-                                                    <span className={`font-medium ${isCompleted ? 'text-primary' : 'text-muted-foreground'}`}>
-                                                        {currentExercise.reps} Reps
-                                                    </span>
-                                                </div>
-                                                <div className={`transition-all duration-300 ${isCompleted ? 'scale-110 text-primary' : 'scale-100 text-muted-foreground'}`}>
-                                                    {isCompleted ? <CheckSquare className="w-6 h-6" /> : <Square className="w-6 h-6" />}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                                                    
+                                                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                                                        isCompleted ? 'border-primary bg-primary' : 'border-muted-foreground/30 bg-transparent'
+                                                    }`}>
+                                                        <motion.div 
+                                                            initial={false} 
+                                                            animate={{ scale: isCompleted ? 1 : 0, opacity: isCompleted ? 1 : 0 }}
+                                                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                        >
+                                                            <Check className="w-6 h-6 text-primary-foreground" strokeWidth={4} />
+                                                        </motion.div>
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Navigation - Manual Overrides */}
-                        <div className="flex justify-between gap-4">
-                            <button
-                                disabled={currentExerciseIndex === 0}
-                                onClick={() => {
-                                    setCurrentExerciseIndex(prev => prev - 1);
-                                    setPhase('WORK');
-                                    setTimeLeft(30);
-                                }}
-                                className="flex-1 py-4 bg-muted text-foreground border border-border rounded-xl font-bold hover:bg-muted/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                            >
-                                ← Previous
-                            </button>
-                            {currentExerciseIndex === routine.exercises.length - 1 ? (
-                                <button
-                                    onClick={handleFinishWorkout}
-                                    className="flex-1 py-4 bg-red-600 text-white rounded-xl font-bold shadow-[0_0_20px_rgba(255,0,0,0.3)] hover:bg-red-700 transition-all flex items-center justify-center gap-2"
-                                >
-                                    Stop <Square className="w-5 h-5 fill-current" />
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => {
-                                        setCurrentExerciseIndex(prev => prev + 1);
-                                        setPhase('WORK');
-                                        setTimeLeft(30);
-                                    }}
-                                    className="flex-1 py-4 bg-primary text-black rounded-xl font-bold shadow-[0_0_20px_rgba(204,255,0,0.3)] hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
-                                >
-                                    Next Exercise <ChevronRight className="w-5 h-5" />
-                                </button>
                             )}
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* Sidebar */}
-                    <div className="space-y-6">
-                        <div className="bg-card backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-border">
-                            <h4 className="font-bold text-foreground mb-4 uppercase tracking-wide text-sm flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-primary" /> Up Next
-                            </h4>
-                            {/* Simple Next Exercise Preview */}
+                    <div className="lg:col-span-4 space-y-8">
+                        
+                        {/* Up Next Card */}
+                        <motion.div 
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="bg-card/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-border shadow-2xl relative overflow-hidden group"
+                        >
                             {routine.exercises[currentExerciseIndex + 1] ? (
-                                <div className="p-4 bg-muted rounded-xl border border-border">
-                                    <p className="text-muted-foreground text-xs uppercase font-bold mb-1">Coming Up</p>
-                                    <p className="text-foreground font-bold text-lg">{routine.exercises[currentExerciseIndex + 1].exercise.name}</p>
-                                    <p className="text-primary text-sm">{routine.exercises[currentExerciseIndex + 1].sets} sets × {routine.exercises[currentExerciseIndex + 1].reps}</p>
-                                </div>
+                                <>
+                                    <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                    <h4 className="font-bold text-muted-foreground mb-6 uppercase tracking-widest text-xs flex items-center gap-3">
+                                        <Clock className="w-4 h-4 text-secondary" /> Up Next
+                                    </h4>
+                                    <p className="text-3xl font-black text-foreground leading-tight mb-3 tracking-tight">{routine.exercises[currentExerciseIndex + 1].exercise.name}</p>
+                                    <p className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary font-bold text-sm tracking-wide border border-secondary/20">
+                                        {routine.exercises[currentExerciseIndex + 1].sets} sets × {routine.exercises[currentExerciseIndex + 1].reps}
+                                    </p>
+                                </>
                             ) : (
-                                <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20 flex items-center gap-3">
-                                    <Flag className="w-6 h-6 text-green-500" />
-                                    <p className="text-green-400 font-bold">Almost Done!</p>
+                                <div className="flex flex-col items-center justify-center text-center py-4">
+                                    <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6 relative">
+                                        <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping opacity-20" />
+                                        <Flag className="w-10 h-10 text-green-500" />
+                                    </div>
+                                    <p className="text-green-400 font-black text-3xl tracking-tight mb-2">Final Exercise!</p>
+                                    <p className="text-muted-foreground font-medium text-sm uppercase tracking-widest">Finish strong</p>
                                 </div>
                             )}
-                        </div>
+                        </motion.div>
 
-                        <div className="bg-card backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-border">
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="font-bold text-foreground uppercase tracking-wide text-sm">Workout Plan</h4>
-                                <button
-                                    onClick={() => setIsEditing(!isEditing)}
-                                    className={`text-xs font-bold px-3 py-1 rounded-lg border transition-all ${isEditing
-                                        ? 'bg-primary text-black border-primary'
-                                        : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-                                        }`}
-                                >
-                                    {isEditing ? 'Done' : 'Edit'}
-                                </button>
+                        {/* Workout Plan List */}
+                        <motion.div 
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="bg-card/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-border shadow-2xl flex flex-col h-[500px]"
+                        >
+                            <div className="flex justify-between items-center mb-8 shrink-0">
+                                <h4 className="font-bold text-foreground uppercase tracking-widest text-sm">Session Overview</h4>
                             </div>
-                            <div className="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                                {routine.exercises.map((ex, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => !isEditing && setCurrentExerciseIndex(idx)}
-                                        className={`p-3 rounded-lg transition-colors flex items-center gap-3 ${idx === currentExerciseIndex && !isEditing
-                                            ? 'bg-primary/20 border border-primary/50'
-                                            : isEditing ? 'bg-muted border border-muted' : 'hover:bg-muted border border-transparent cursor-pointer'
+                            
+                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4">
+                                {routine.exercises.map((ex, idx) => {
+                                    const isActive = idx === currentExerciseIndex;
+                                    const isPast = idx < currentExerciseIndex;
+                                    
+                                    return (
+                                        <div
+                                            key={idx}
+                                            onClick={() => setCurrentExerciseIndex(idx)}
+                                            className={`p-5 rounded-2xl flex items-center gap-4 transition-all cursor-pointer ${
+                                                isActive 
+                                                ? 'bg-primary/10 border border-primary/30 shadow-lg scale-[1.02]' 
+                                                : 'bg-muted/30 border border-transparent hover:bg-muted'
                                             }`}
-                                    >
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${idx === currentExerciseIndex ? 'bg-primary text-black' : 'bg-muted/50 text-muted-foreground'
+                                        >
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${
+                                                isActive ? 'bg-primary text-primary-foreground shadow-[0_0_10px_rgba(0,163,255,0.5)]' : isPast ? 'bg-muted-foreground/20 text-muted-foreground' : 'bg-muted text-muted-foreground'
                                             }`}>
-                                            {idx + 1}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`text-sm font-medium truncate ${idx === currentExerciseIndex ? 'text-primary' : 'text-muted-foreground'}`}>
-                                                {ex.exercise.name}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">{ex.sets} sets × {ex.reps}</p>
-                                        </div>
-
-                                        {isEditing && (
-                                            <div className="flex items-center gap-1">
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleMoveExercise(idx, 'up'); }}
-                                                    disabled={idx === 0}
-                                                    className="p-1 hover:bg-muted rounded text-muted-foreground disabled:opacity-30 disabled:hover:bg-transparent"
-                                                >
-                                                    <ChevronLeft className="w-4 h-4 rotate-90" />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleMoveExercise(idx, 'down'); }}
-                                                    disabled={idx === routine.exercises.length - 1}
-                                                    className="p-1 hover:bg-white/10 rounded text-gray-400 disabled:opacity-30 disabled:hover:bg-transparent"
-                                                >
-                                                    <ChevronLeft className="w-4 h-4 -rotate-90" />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleRemoveExercise(idx); }}
-                                                    className="p-1 hover:bg-red-500/20 rounded text-red-500 ml-1"
-                                                >
-                                                    <Square className="w-4 h-4 fill-current" />
-                                                </button>
+                                                {isPast ? <Check className="w-5 h-5" strokeWidth={3} /> : idx + 1}
                                             </div>
-                                        )}
-                                    </div>
-                                ))}
+                                            <div className="flex-1 min-w-0">
+                                                <p className={`font-bold truncate text-lg ${
+                                                    isActive ? 'text-primary' : isPast ? 'text-muted-foreground line-through opacity-50' : 'text-foreground'
+                                                }`}>
+                                                    {ex.exercise.name}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">{ex.sets} sets × {ex.reps}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </div>
-        </div >
+
+            {/* Floating Control Bar */}
+            {hasStarted && (
+                <motion.div 
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4"
+                >
+                    <div className="bg-card/90 backdrop-blur-3xl border border-border rounded-[2.5rem] p-3 flex items-center justify-between shadow-[0_30px_60px_rgba(0,0,0,0.6)]">
+                        <button
+                            disabled={currentExerciseIndex === 0}
+                            onClick={() => {
+                                setCurrentExerciseIndex(prev => prev - 1);
+                                setPhase('WORK');
+                                setTimeLeft(30);
+                            }}
+                            className="w-14 h-14 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+                        >
+                            <ChevronLeft className="w-7 h-7" />
+                        </button>
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={handleTogglePause}
+                                className="w-20 h-20 rounded-full bg-foreground text-background flex items-center justify-center hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                            >
+                                {isPaused ? <Play className="w-10 h-10 fill-current ml-2" /> : <Pause className="w-10 h-10 fill-current" />}
+                            </button>
+                            <button
+                                onClick={handleSkip}
+                                className="w-14 h-14 rounded-full bg-muted/80 text-foreground flex items-center justify-center hover:bg-muted transition-colors"
+                            >
+                                <SkipForward className="w-6 h-6 fill-current" />
+                            </button>
+                        </div>
+
+                        {currentExerciseIndex === routine.exercises.length - 1 ? (
+                            <button
+                                onClick={handleFinishWorkout}
+                                className="w-14 h-14 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500/20 transition-colors relative"
+                                title="Finish Workout"
+                            >
+                                <Square className="w-6 h-6 fill-current" />
+                                <div className="absolute inset-0 rounded-full border border-red-500/30 animate-ping opacity-50" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => {
+                                    setCurrentExerciseIndex(prev => prev + 1);
+                                    setPhase('WORK');
+                                    setTimeLeft(30);
+                                }}
+                                className="w-14 h-14 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <ChevronRight className="w-7 h-7" />
+                            </button>
+                        )}
+                    </div>
+                </motion.div>
+            )}
+        </div>
     );
 };
 

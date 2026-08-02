@@ -48,13 +48,13 @@ const History = () => {
                 <div className="flex justify-center mb-10">
                     <div className="bg-muted p-1 rounded-xl border border-border flex flex-wrap gap-1 justify-center backdrop-blur-md">
                         <button
-                            className={`px-6 py-3 rounded-lg font-bold transition-all duration-300 ${activeTab === 'scans' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+                            className={`px-6 py-3 rounded-lg font-bold transition-all duration-300 ${activeTab === 'scans' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
                             onClick={() => setActiveTab('scans')}
                         >
                             Food Scans
                         </button>
                         <button
-                            className={`px-6 py-3 rounded-lg font-bold transition-all duration-300 ${activeTab === 'diet' ? 'bg-secondary text-black shadow-lg shadow-secondary/20' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+                            className={`px-6 py-3 rounded-lg font-bold transition-all duration-300 ${activeTab === 'diet' ? 'bg-secondary text-primary-foreground shadow-lg shadow-secondary/20' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
                             onClick={() => setActiveTab('diet')}
                         >
                             Diet Plans
@@ -74,7 +74,7 @@ const History = () => {
                             <div key={scan._id} className="bg-card backdrop-blur-md border border-border rounded-2xl p-6 hover:border-primary/50 transition duration-300 group">
                                 <div className="flex justify-between items-center mb-4">
                                     <span className="text-xs text-muted-foreground font-mono">{new Date(scan.createdAt).toLocaleDateString()}</span>
-                                    <span className={`text-xs font-bold px-2 py-1 rounded-full text-black ${scan.healthScore === null ? 'bg-gray-400' :
+                                    <span className={`text-xs font-bold px-2 py-1 rounded-full text-primary-foreground ${scan.healthScore === null ? 'bg-gray-400' :
                                         scan.healthScore >= 70 ? 'bg-green-400' : scan.healthScore >= 40 ? 'bg-yellow-400' : 'bg-red-400'
                                         }`}>
                                         Score: {scan.healthScore !== null ? scan.healthScore : 'N/A'}

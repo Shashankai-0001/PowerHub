@@ -1,37 +1,29 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-    { day: 'Mon', minutes: 45, calories: 350 },
-    { day: 'Tue', minutes: 60, calories: 480 },
-    { day: 'Wed', minutes: 30, calories: 240 },
-    { day: 'Thu', minutes: 75, calories: 600 },
-    { day: 'Fri', minutes: 50, calories: 400 },
-    { day: 'Sat', minutes: 90, calories: 720 },
-    { day: 'Sun', minutes: 40, calories: 320 },
-];
+export function ActivityChart({ data }) {
+    if (!data || data.length === 0) return <div className="h-[250px] flex items-center justify-center text-muted-foreground">No data available</div>;
 
-export function ActivityChart() {
     return (
         <ResponsiveContainer width="100%" height={250}>
             <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                 <XAxis
                     dataKey="day"
-                    stroke="#64748b"
+                    stroke="#94a3b8"
                     style={{ fontSize: '12px' }}
                 />
                 <YAxis
-                    stroke="#64748b"
+                    stroke="#94a3b8"
                     style={{ fontSize: '12px' }}
                 />
                 <Tooltip
                     contentStyle={{
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #e2e8f0',
+                        backgroundColor: '#1e293b',
+                        border: '1px solid rgba(255,255,255,0.1)',
                         borderRadius: '12px',
-                        color: '#0f172a'
+                        color: '#f8fafc'
                     }}
-                    cursor={{ fill: 'rgba(0, 200, 83, 0.1)' }}
+                    cursor={{ fill: 'rgba(204, 255, 0, 0.1)' }}
                 />
                 <Bar
                     dataKey="minutes"
@@ -42,8 +34,8 @@ export function ActivityChart() {
                 />
                 <defs>
                     <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#00C853" stopOpacity={1} />
-                        <stop offset="100%" stopColor="#64DD17" stopOpacity={0.8} />
+                        <stop offset="0%" stopColor="#CCFF00" stopOpacity={1} />
+                        <stop offset="100%" stopColor="#00F0FF" stopOpacity={0.8} />
                     </linearGradient>
                 </defs>
             </BarChart>

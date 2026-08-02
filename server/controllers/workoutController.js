@@ -91,27 +91,22 @@ exports.getExerciseById = async (req, res) => {
 // --- Routines ---
 exports.generateRoutine = async (req, res) => {
     try {
-        const profile = await UserWorkoutProfile.findOne({ userId: req.user.id });
-        if (!profile) return res.status(400).json({ message: 'Create a profile first' });
+        let profile = await UserWorkoutProfile.findOne({ userId: req.user.id });
+        
+        let goal = profile ? profile.fitnessGoal : 'general_fitness';
+        let level = profile ? profile.experienceLevel : 'beginner';
 
         // 1. Try exact match
-        let routines = await WorkoutRoutine.find({
-            goal: profile.fitnessGoal,
-            level: profile.experienceLevel
-        }).populate('exercises.exercise');
+        let routines = await WorkoutRoutine.find({ goal, level }).populate('exercises.exercise');
 
         // 2. Fallback: Match goal only
         if (routines.length === 0) {
-            routines = await WorkoutRoutine.find({
-                goal: profile.fitnessGoal
-            }).populate('exercises.exercise');
+            routines = await WorkoutRoutine.find({ goal }).populate('exercises.exercise');
         }
 
         // 3. Fallback: Match level only
         if (routines.length === 0) {
-            routines = await WorkoutRoutine.find({
-                level: profile.experienceLevel
-            }).populate('exercises.exercise');
+            routines = await WorkoutRoutine.find({ level }).populate('exercises.exercise');
         }
 
         // 4. Ultimate Fallback: Return ANY routine
@@ -119,8 +114,60 @@ exports.generateRoutine = async (req, res) => {
             routines = await WorkoutRoutine.find().populate('exercises.exercise');
         }
 
+        // 5. If literally NO routines exist in the DB, create one on the fly!
+        if (routines.length === 0) {
+            // Check for exercises
+            let exerciseCount = await Exercise.countDocuments();
+            let defaultExercise;
+            
+            if (exerciseCount === 0) {
+                // Seed a couple of default exercises
+                defaultExercise = new Exercise({
+                    name: 'Push-ups',
+                    category: 'strength',
+                    targetMuscles: ['chest', 'triceps', 'shoulders'],
+                    equipment: 'none',
+                    difficulty: 'beginner',
+                    instructions: ['Start in a plank position.', 'Lower your body.', 'Push back up.'],
+                });
+                await defaultExercise.save();
+                
+                await new Exercise({
+                    name: 'Bodyweight Squats',
+                    category: 'strength',
+                    targetMuscles: ['quadriceps', 'glutes', 'hamstrings'],
+                    equipment: 'none',
+                    difficulty: 'beginner',
+                    instructions: ['Stand with feet shoulder-width apart.', 'Lower hips back.', 'Return to standing.'],
+                }).save();
+            } else {
+                defaultExercise = await Exercise.findOne();
+            }
+
+            // Create a default routine
+            const newRoutine = new WorkoutRoutine({
+                name: 'Full Body Starter',
+                goal: 'general_fitness',
+                level: 'beginner',
+                equipment: 'none',
+                duration: 20,
+                exercises: [{
+                    exercise: defaultExercise._id,
+                    sets: 3,
+                    reps: '10',
+                    order: 1,
+                    section: 'main'
+                }]
+            });
+            await newRoutine.save();
+            
+            const populatedRoutine = await WorkoutRoutine.findById(newRoutine._id).populate('exercises.exercise');
+            routines = [populatedRoutine];
+        }
+
         res.json(routines);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: err.message });
     }
 };

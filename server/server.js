@@ -31,6 +31,7 @@ const scanRoutes = require('./routes/scanRoutes');
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/scan', scanRoutes);
 app.use('/api/v1/workouts', require('./routes/workoutRoutes'));
+app.use('/api/v1/dashboard', require('./routes/dashboardRoutes'));
 
 // Diet routes (frontend calls /api/diet/summary)
 app.use('/api/diet', require('./routes/dietRoutes'));

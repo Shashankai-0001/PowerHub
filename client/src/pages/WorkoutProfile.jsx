@@ -24,7 +24,7 @@ const WorkoutProfile = () => {
         try {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
-            const res = await axios.get('http://localhost:5000/api/v1/workouts/profile', {
+            const res = await axios.get('http://localhost:5001/api/v1/workouts/profile', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data) {
@@ -45,7 +45,7 @@ const WorkoutProfile = () => {
         try {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
-            await axios.post('http://localhost:5000/api/v1/workouts/profile', formData, {
+            await axios.post('http://localhost:5001/api/v1/workouts/profile', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             navigate('/workouts');

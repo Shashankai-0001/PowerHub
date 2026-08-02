@@ -16,8 +16,8 @@ const WeeklyPlanner = () => {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
             const [planRes, routinesRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/v1/workouts/weekly-plan', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/v1/workouts/routines', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get('http://localhost:5001/api/v1/workouts/weekly-plan', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://localhost:5001/api/v1/workouts/routines', { headers: { Authorization: `Bearer ${token}` } })
             ]);
 
             setPlan(planRes.data || { days: daysOfWeek.map(day => ({ dayOfWeek: day, routineId: '', isRestDay: false })) });
@@ -62,7 +62,7 @@ const WeeklyPlanner = () => {
             const monday = new Date(today.setDate(diff));
             monday.setHours(0, 0, 0, 0);
 
-            await axios.post('http://localhost:5000/api/v1/workouts/weekly-plan', {
+            await axios.post('http://localhost:5001/api/v1/workouts/weekly-plan', {
                 weekStartDate: monday,
                 days: sanitizedDays
             }, {

@@ -43,9 +43,9 @@ const ProgressDashboard = () => {
             if (!token) return;
 
             const [sessionsRes, logsRes, exercisesRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/v1/workouts/sessions', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/v1/workouts/progress', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/v1/workouts/exercises', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get('http://localhost:5001/api/v1/workouts/sessions', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://localhost:5001/api/v1/workouts/progress', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://localhost:5001/api/v1/workouts/exercises', { headers: { Authorization: `Bearer ${token}` } })
             ]);
 
             setSessions(sessionsRes.data);

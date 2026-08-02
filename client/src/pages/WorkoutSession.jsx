@@ -72,13 +72,13 @@ const WorkoutSession = () => {
             const token = user ? user.token : null;
 
             let currentRoutine = null;
-            const res = await axios.get('http://localhost:5000/api/v1/workouts/routines/generate', {
+            const res = await axios.get('http://localhost:5001/api/v1/workouts/routines/generate', {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
             if (res.data && res.data.length > 0) {
                 const routineId = res.data[0]._id;
-                const fullRoutineRes = await axios.get(`http://localhost:5000/api/v1/workouts/routines/${routineId}`, {
+                const fullRoutineRes = await axios.get(`http://localhost:5001/api/v1/workouts/routines/${routineId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 currentRoutine = fullRoutineRes.data;
@@ -150,7 +150,7 @@ const WorkoutSession = () => {
                 }))
             }));
 
-            await axios.post('http://localhost:5000/api/v1/workouts/sessions', {
+            await axios.post('http://localhost:5001/api/v1/workouts/sessions', {
                 routineId: routine._id,
                 duration: actualDurationMinutes,
                 caloriesBurned: calculatedCalories,

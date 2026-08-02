@@ -22,7 +22,7 @@ const ExerciseLibrary = () => {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
             const params = new URLSearchParams(filters).toString();
-            const res = await axios.get(`http://localhost:5000/api/v1/workouts/exercises?${params}`, {
+            const res = await axios.get(`http://localhost:5001/api/v1/workouts/exercises?${params}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setExercises(res.data);

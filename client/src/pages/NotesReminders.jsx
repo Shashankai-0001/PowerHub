@@ -16,8 +16,8 @@ const NotesReminders = () => {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
             const [notesRes, tasksRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/v1/workouts/notes', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/v1/workouts/tasks', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get('http://localhost:5001/api/v1/workouts/notes', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://localhost:5001/api/v1/workouts/tasks', { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setNotes(notesRes.data);
             setTasks(tasksRes.data);
@@ -31,7 +31,7 @@ const NotesReminders = () => {
         try {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
-            const res = await axios.post('http://localhost:5000/api/v1/workouts/notes', newNote, {
+            const res = await axios.post('http://localhost:5001/api/v1/workouts/notes', newNote, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setNotes([res.data, ...notes]);
@@ -46,7 +46,7 @@ const NotesReminders = () => {
         try {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
-            const res = await axios.post('http://localhost:5000/api/v1/workouts/tasks', { content: newTask }, {
+            const res = await axios.post('http://localhost:5001/api/v1/workouts/tasks', { content: newTask }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTasks([res.data, ...tasks]);
@@ -60,7 +60,7 @@ const NotesReminders = () => {
         try {
             const user = JSON.parse(localStorage.getItem('user'));
             const token = user ? user.token : null;
-            await axios.put(`http://localhost:5000/api/v1/workouts/tasks/${id}`, { isCompleted: !currentStatus }, {
+            await axios.put(`http://localhost:5001/api/v1/workouts/tasks/${id}`, { isCompleted: !currentStatus }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTasks(tasks.map(t => t._id === id ? { ...t, isCompleted: !currentStatus } : t));

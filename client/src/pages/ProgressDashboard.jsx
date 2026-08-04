@@ -12,7 +12,7 @@ import {
     Legend,
     Filler
 } from 'chart.js';
-import axios from 'axios';
+import api from '../api';
 
 ChartJS.register(
     CategoryScale,
@@ -39,13 +39,10 @@ const ProgressDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
-            if (!token) return;
-
             const [sessionsRes, logsRes, exercisesRes] = await Promise.all([
-                axios.get('http://localhost:5001/api/v1/workouts/sessions', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5001/api/v1/workouts/progress', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5001/api/v1/workouts/exercises', { headers: { Authorization: `Bearer ${token}` } })
+                api.get('/api/v1/workouts/sessions'),
+                api.get('/api/v1/workouts/progress'),
+                api.get('/api/v1/workouts/exercises')
             ]);
 
             setSessions(sessionsRes.data);
@@ -56,7 +53,7 @@ const ProgressDashboard = () => {
                 setSelectedExercise(logsRes.data[0].exerciseId);
             }
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching progress data:', err);
         } finally {
             setLoading(false);
         }

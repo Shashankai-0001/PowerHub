@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 const WorkoutProfile = () => {
     const navigate = useNavigate();
@@ -22,16 +22,12 @@ const WorkoutProfile = () => {
 
     const fetchProfile = async () => {
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
-            const res = await axios.get('http://localhost:5001/api/v1/workouts/profile', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get('/api/v1/workouts/profile');
             if (res.data) {
                 setFormData(res.data);
             }
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching profile:', err);
         }
     };
 
@@ -43,15 +39,13 @@ const WorkoutProfile = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
-            await axios.post('http://localhost:5001/api/v1/workouts/profile', formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const { _id, userId, createdAt, updatedAt, __v, ...cleanPayload } = formData;
+            await api.post('/api/v1/workouts/profile', cleanPayload);
             navigate('/workouts');
         } catch (err) {
-            console.error(err);
-            alert('Error saving profile');
+            console.error('Error saving profile:', err);
+            const message = err.response?.data?.message || err.message || 'Error saving profile';
+            alert(`Error saving profile: ${message}`);
         } finally {
             setLoading(false);
         }

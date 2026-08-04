@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 const WeeklyPlanner = () => {
     const [plan, setPlan] = useState(null);
@@ -13,17 +13,15 @@ const WeeklyPlanner = () => {
 
     const fetchData = async () => {
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
             const [planRes, routinesRes] = await Promise.all([
-                axios.get('http://localhost:5001/api/v1/workouts/weekly-plan', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5001/api/v1/workouts/routines', { headers: { Authorization: `Bearer ${token}` } })
+                api.get('/api/v1/workouts/weekly-plan'),
+                api.get('/api/v1/workouts/routines')
             ]);
 
             setPlan(planRes.data || { days: daysOfWeek.map(day => ({ dayOfWeek: day, routineId: '', isRestDay: false })) });
             setRoutines(routinesRes.data);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching weekly planner data:', err);
         } finally {
             setLoading(false);
         }
@@ -37,9 +35,6 @@ const WeeklyPlanner = () => {
 
     const savePlan = async () => {
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
-
             // Sanitize days: Ensure routineId is just an ID string, not an object
             const sanitizedDays = plan.days.map(day => {
                 let rId = day.routineId;
@@ -62,15 +57,13 @@ const WeeklyPlanner = () => {
             const monday = new Date(today.setDate(diff));
             monday.setHours(0, 0, 0, 0);
 
-            await axios.post('http://localhost:5001/api/v1/workouts/weekly-plan', {
+            await api.post('/api/v1/workouts/weekly-plan', {
                 weekStartDate: monday,
                 days: sanitizedDays
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             alert('Plan Saved!');
         } catch (err) {
-            console.error(err);
+            console.error('Error saving plan:', err);
             const message = err.response?.data?.message || 'Error saving plan';
             alert(message);
         }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 const NotesReminders = () => {
     const [notes, setNotes] = useState([]);
@@ -13,59 +13,45 @@ const NotesReminders = () => {
 
     const fetchData = async () => {
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
             const [notesRes, tasksRes] = await Promise.all([
-                axios.get('http://localhost:5001/api/v1/workouts/notes', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5001/api/v1/workouts/tasks', { headers: { Authorization: `Bearer ${token}` } })
+                api.get('/api/v1/workouts/notes'),
+                api.get('/api/v1/workouts/tasks')
             ]);
             setNotes(notesRes.data);
             setTasks(tasksRes.data);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching notes/tasks:', err);
         }
     };
 
     const addNote = async () => {
         if (!newNote.title || !newNote.content) return;
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
-            const res = await axios.post('http://localhost:5001/api/v1/workouts/notes', newNote, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.post('/api/v1/workouts/notes', newNote);
             setNotes([res.data, ...notes]);
             setNewNote({ title: '', content: '' });
         } catch (err) {
-            console.error(err);
+            console.error('Error adding note:', err);
         }
     };
 
     const addTask = async () => {
         if (!newTask) return;
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
-            const res = await axios.post('http://localhost:5001/api/v1/workouts/tasks', { content: newTask }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.post('/api/v1/workouts/tasks', { content: newTask });
             setTasks([res.data, ...tasks]);
             setNewTask('');
         } catch (err) {
-            console.error(err);
+            console.error('Error adding task:', err);
         }
     };
 
     const toggleTask = async (id, currentStatus) => {
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
-            await axios.put(`http://localhost:5001/api/v1/workouts/tasks/${id}`, { isCompleted: !currentStatus }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.put(`/api/v1/workouts/tasks/${id}`, { isCompleted: !currentStatus });
             setTasks(tasks.map(t => t._id === id ? { ...t, isCompleted: !currentStatus } : t));
         } catch (err) {
-            console.error(err);
+            console.error('Error updating task:', err);
         }
     };
 

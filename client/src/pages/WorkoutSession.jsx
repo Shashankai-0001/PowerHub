@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { useNavigate } from 'react-router-dom';
 import { Play, Pause, SkipForward, Square, Check, Flag, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -35,7 +35,7 @@ const WorkoutSession = () => {
     }, [loading, routine, isPaused, phase, currentExerciseIndex, hasStarted]);
 
     const handlePhaseTransition = () => {
-        if (!routine) return;
+        if (!routine || !routine.exercises || routine.exercises.length === 0) return;
 
         if (phase === 'WORK') {
             setPhase('REST');
@@ -68,19 +68,12 @@ const WorkoutSession = () => {
 
     const fetchRoutine = async () => {
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
-
             let currentRoutine = null;
-            const res = await axios.get('http://localhost:5001/api/v1/workouts/routines/generate', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get('/api/v1/workouts/routines/generate');
 
             if (res.data && res.data.length > 0) {
                 const routineId = res.data[0]._id;
-                const fullRoutineRes = await axios.get(`http://localhost:5001/api/v1/workouts/routines/${routineId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const fullRoutineRes = await api.get(`/api/v1/workouts/routines/${routineId}`);
                 currentRoutine = fullRoutineRes.data;
             }
 
@@ -95,7 +88,7 @@ const WorkoutSession = () => {
                 }));
 
                 if (currentRoutine) {
-                    currentRoutine.exercises = [...currentRoutine.exercises, ...formattedCustomExercises];
+                    currentRoutine.exercises = [...(currentRoutine.exercises || []), ...formattedCustomExercises];
                 } else {
                     currentRoutine = {
                         _id: 'custom-combined',
@@ -105,9 +98,14 @@ const WorkoutSession = () => {
                 }
             }
 
+            // Filter out any exercises with missing exercise data
+            if (currentRoutine && currentRoutine.exercises) {
+                currentRoutine.exercises = currentRoutine.exercises.filter(e => e && e.exercise);
+            }
+
             setRoutine(currentRoutine);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching workout routine:', err);
         } finally {
             setLoading(false);
         }
@@ -126,9 +124,6 @@ const WorkoutSession = () => {
     const handleFinishWorkout = async () => {
         if (!routine) return;
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
-
             // Calculate accurate duration
             let actualDurationMinutes = 1; // Default minimum 1 minute
             if (sessionStartTime) {
@@ -138,33 +133,30 @@ const WorkoutSession = () => {
 
             // Calculate dynamic calories based on duration and sets completed
             const setsCompletedCount = Object.values(completedSets).filter(Boolean).length;
-            // Base calories + extra for completed sets (rough estimate)
             const calculatedCalories = Math.round((actualDurationMinutes * 6) + (setsCompletedCount * 5));
 
-            const exercisesCompleted = routine.exercises.map((ex, idx) => ({
-                exercise: ex.exercise._id,
-                sets: Array(ex.sets).fill(0).map((_, setIdx) => ({
-                    reps: parseInt(ex.reps) || 0,
+            const exercisesCompleted = (routine.exercises || []).map((ex, idx) => ({
+                exercise: ex.exercise?._id || ex.exercise,
+                sets: Array(ex.sets || 3).fill(0).map((_, setIdx) => ({
+                    reps: parseInt(ex.reps) || 10,
                     weight: 0,
                     completed: !!completedSets[`${idx}-${setIdx}`]
                 }))
             }));
 
-            await axios.post('http://localhost:5001/api/v1/workouts/sessions', {
+            await api.post('/api/v1/workouts/sessions', {
                 routineId: routine._id,
                 duration: actualDurationMinutes,
                 caloriesBurned: calculatedCalories,
                 exercisesCompleted,
                 notes: "Great workout!"
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
             localStorage.removeItem('activeWorkoutQueue');
             alert('Workout Saved!');
             navigate('/workouts/dashboard');
         } catch (err) {
-            console.error(err);
+            console.error('Error saving workout:', err);
             alert('Error saving workout');
         }
     };
@@ -255,7 +247,7 @@ const WorkoutSession = () => {
                                  ) : (
                                      <>
                                         <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter mb-8 relative z-10 leading-tight">
-                                            {currentExercise.exercise.name}
+                                            {currentExercise?.exercise?.name || 'Workout Exercise'}
                                         </h2>
                                         
                                         {/* Sleek Timer */}
@@ -285,19 +277,19 @@ const WorkoutSession = () => {
                                 
                                 <div className="mb-10">
                                     <p className="text-lg md:text-xl text-muted-foreground leading-relaxed italic border-l-4 border-primary pl-6 font-medium">
-                                        "{currentExercise.exercise.instructions[0]}"
+                                        "{currentExercise?.exercise?.instructions?.[0] || 'Perform exercise with controlled motion and proper form.'}"
                                     </p>
                                 </div>
 
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-end mb-8">
                                         <h3 className="text-3xl font-black text-foreground tracking-tight">Track Sets</h3>
-                                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{currentExercise.sets} Total Sets</span>
+                                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{currentExercise?.sets || 3} Total Sets</span>
                                     </div>
 
                                     {/* Animated Set Pills */}
                                     <div className="space-y-4">
-                                        {Array.from({ length: currentExercise.sets }).map((_, idx) => {
+                                        {Array.from({ length: currentExercise?.sets || 3 }).map((_, idx) => {
                                             const isCompleted = !!completedSets[`${currentExerciseIndex}-${idx}`];
                                             return (
                                                 <motion.div
@@ -319,7 +311,7 @@ const WorkoutSession = () => {
                                                         </div>
                                                         <div>
                                                             <span className={`block text-2xl font-black transition-colors ${isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                                                {currentExercise.reps} Reps
+                                                                {currentExercise?.reps || 10} Reps
                                                             </span>
                                                             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1 block">Target</span>
                                                         </div>
@@ -355,7 +347,7 @@ const WorkoutSession = () => {
                             animate={{ opacity: 1, x: 0 }}
                             className="bg-card/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-border shadow-2xl relative overflow-hidden group"
                         >
-                            {routine.exercises[currentExerciseIndex + 1] ? (
+                            {routine.exercises[currentExerciseIndex + 1]?.exercise ? (
                                 <>
                                     <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                                     <h4 className="font-bold text-muted-foreground mb-6 uppercase tracking-widest text-xs flex items-center gap-3">
@@ -363,7 +355,7 @@ const WorkoutSession = () => {
                                     </h4>
                                     <p className="text-3xl font-black text-foreground leading-tight mb-3 tracking-tight">{routine.exercises[currentExerciseIndex + 1].exercise.name}</p>
                                     <p className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary font-bold text-sm tracking-wide border border-secondary/20">
-                                        {routine.exercises[currentExerciseIndex + 1].sets} sets × {routine.exercises[currentExerciseIndex + 1].reps}
+                                        {routine.exercises[currentExerciseIndex + 1].sets || 3} sets × {routine.exercises[currentExerciseIndex + 1].reps || 10}
                                     </p>
                                 </>
                             ) : (
@@ -413,9 +405,9 @@ const WorkoutSession = () => {
                                                 <p className={`font-bold truncate text-lg ${
                                                     isActive ? 'text-primary' : isPast ? 'text-muted-foreground line-through opacity-50' : 'text-foreground'
                                                 }`}>
-                                                    {ex.exercise.name}
+                                                    {ex.exercise?.name || 'Exercise'}
                                                 </p>
-                                                <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">{ex.sets} sets × {ex.reps}</p>
+                                                <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">{ex.sets || 3} sets × {ex.reps || 10}</p>
                                             </div>
                                         </div>
                                     );

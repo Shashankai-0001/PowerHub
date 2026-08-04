@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import api from '../api';
 import { motion } from 'motion/react';
-import { Flame, Target, TrendingUp, Zap, Award, Calendar, Dumbbell, UtensilsCrossed, Clock, CheckCircle2 } from 'lucide-react';
+import { Flame, Target, TrendingUp, Zap, Award, Calendar, Dumbbell, UtensilsCrossed, Clock, CheckCircle2, Phone, Mail, ShieldCheck } from 'lucide-react';
 import { StatCard } from '../components/StatCard';
 import { ActivityChart } from '../components/ActivityChart';
 import { MacroChart } from '../components/MacroChart';
+import { ContactSection } from '../components/ContactSection';
 
 const container = {
     hidden: { opacity: 0 },
@@ -292,20 +293,11 @@ const Home = () => {
                     </div>
                 </section>
 
-                {/* CTA Section */}
-                <section className="py-24 px-4 relative z-10 border-t border-border">
-                    <div className="max-w-4xl mx-auto text-center bg-card/50 backdrop-blur-2xl border border-border p-16 rounded-[3rem] shadow-2xl">
-                        <h2 className="text-4xl md:text-5xl font-black text-foreground mb-6">Stop guessing. Start tracking.</h2>
-                        <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">Join the ecosystem today and take absolute control over your fitness journey. It's free to start.</p>
-                        <Link
-                            to="/register"
-                            className="inline-block px-14 py-6 bg-primary text-primary-foreground font-black text-xl rounded-full hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(0,163,255,0.4)]"
-                        >
-                            Create Your Free Account
-                        </Link>
-                    </div>
-                </section>
+
                 
+                {/* Executive Contact Us Section */}
+                <ContactSection />
+
                 {/* Footer */}
                 <footer className="py-12 border-t border-border text-center text-muted-foreground font-medium relative z-10 bg-background">
                     <p>© {new Date().getFullYear()} PowerHub Platform. All rights reserved.</p>

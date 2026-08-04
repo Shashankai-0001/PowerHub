@@ -116,84 +116,106 @@ exports.getAnalytics = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Fetch Existing History
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(today.getDate() - 6);
 
-    let history = await DietHistory.find({
+    // 1. Fetch Real User History from DietHistory & DietLog & FoodScan
+    const historyLogs = await DietHistory.find({
       userId,
       date: { $gte: sevenDaysAgo }
     }).sort({ date: 1 });
 
-    // --- DEMO DATA GENERATION (If insufficient data) ---
-    if (history.length < 3) {
-      const profile = await UserWorkoutProfile.findOne({ userId });
-      const weight = profile?.weight || 70;
-      const height = profile?.height || 170;
-      const age = profile?.age || 30;
-      const gender = profile?.gender || 'male';
+    const dietLogs = await DietLog.find({
+      userId,
+      date: { $gte: sevenDaysAgo }
+    });
 
-      const bmr = calculateBMR({ weight, height, age, gender });
-      const tdee = calculateTDEE(bmr, 'moderate'); // Assume moderate for baseline
+    const foodScans = await FoodScan.find({
+      userId,
+      createdAt: { $gte: sevenDaysAgo }
+    });
 
-      // Generate fake history for missing days
-      const filledHistory = [];
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(sevenDaysAgo);
-        d.setDate(sevenDaysAgo.getDate() + i);
-        d.setHours(0, 0, 0, 0);
+    // Aggregate real daily totals for each of the last 7 days
+    const daysMap = {};
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-        // Check if we have real data for this day
-        const existing = history.find(h => new Date(h.date).toDateString() === d.toDateString());
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const dateKey = d.toDateString();
+      const dayName = daysOfWeek[d.getDay()];
 
-        if (existing) {
-          filledHistory.push(existing);
-        } else {
-          // Generate distinct random variance +- 20%
-          const variance = (Math.random() * 0.4) - 0.2;
-          const calories = Math.round(tdee * (1 + variance));
-          const protein = Math.round((weight * 2.0) * (1 + (Math.random() * 0.2 - 0.1)));
-
-          // Distributed remainder
-          const remaining = calories - (protein * 4);
-          const carbs = Math.round((remaining * 0.5) / 4);
-          const fats = Math.round((remaining * 0.5) / 9);
-
-          filledHistory.push({
-            date: d,
-            totalCalories: calories,
-            totalProtein: protein,
-            totalCarbs: carbs,
-            totalFats: fats,
-            avgHealthScore: Math.round(60 + (Math.random() * 30)), // 60-90 score
-            isDemo: true
-          });
-        }
-      }
-      history = filledHistory;
+      daysMap[dateKey] = {
+        day: dayName,
+        date: d,
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fats: 0,
+        healthScores: []
+      };
     }
 
-    // Normalize Data for Charts
+    // Accumulate real DietLog entries
+    dietLogs.forEach(log => {
+      const dateKey = new Date(log.date).toDateString();
+      if (daysMap[dateKey]) {
+        daysMap[dateKey].calories += log.calories || 0;
+        if (log.macros) {
+          daysMap[dateKey].protein += log.macros.protein?.grams || 0;
+          daysMap[dateKey].carbs += log.macros.carbs?.grams || 0;
+          daysMap[dateKey].fats += log.macros.fats?.grams || 0;
+        }
+      }
+    });
+
+    // Accumulate real DietHistory entries
+    historyLogs.forEach(h => {
+      const dateKey = new Date(h.date).toDateString();
+      if (daysMap[dateKey]) {
+        daysMap[dateKey].calories = Math.max(daysMap[dateKey].calories, h.totalCalories || 0);
+        daysMap[dateKey].protein = Math.max(daysMap[dateKey].protein, h.totalProtein || 0);
+        daysMap[dateKey].carbs = Math.max(daysMap[dateKey].carbs, h.totalCarbs || 0);
+        daysMap[dateKey].fats = Math.max(daysMap[dateKey].fats, h.totalFats || 0);
+        if (h.avgHealthScore) daysMap[dateKey].healthScores.push(h.avgHealthScore);
+      }
+    });
+
+    // Accumulate real FoodScan entries
+    foodScans.forEach(scan => {
+      const dateKey = new Date(scan.createdAt).toDateString();
+      if (daysMap[dateKey]) {
+        daysMap[dateKey].calories += scan.calories || 0;
+        daysMap[dateKey].protein += scan.protein || 0;
+        daysMap[dateKey].carbs += scan.carbs || 0;
+        daysMap[dateKey].fats += scan.fat || 0;
+        if (scan.healthScore !== null && scan.healthScore !== undefined) {
+          daysMap[dateKey].healthScores.push(scan.healthScore);
+        }
+      }
+    });
+
     const labels = [];
     const calorieData = [];
     const healthScoreData = [];
+    const weeklyMacros = [];
 
-    history.forEach(log => {
-      labels.push(new Date(log.date).toLocaleDateString('en-US', { weekday: 'short' }));
-      calorieData.push(log.totalCalories);
-      healthScoreData.push(log.avgHealthScore);
+    Object.values(daysMap).forEach(dayObj => {
+      labels.push(dayObj.day);
+      calorieData.push(Math.round(dayObj.calories));
+      const avgHealth = dayObj.healthScores.length > 0 
+        ? Math.round(dayObj.healthScores.reduce((a, b) => a + b, 0) / dayObj.healthScores.length)
+        : 0;
+      healthScoreData.push(avgHealth);
+      weeklyMacros.push({
+        day: dayObj.day,
+        protein: Math.round(dayObj.protein),
+        carbs: Math.round(dayObj.carbs),
+        fats: Math.round(dayObj.fats)
+      });
     });
 
-    // 2. Weekly Macro Stack
-    // Simple aggregation for now: just return the daily breakdown
-    const weeklyMacros = history.map(log => ({
-      day: new Date(log.date).toLocaleDateString('en-US', { weekday: 'short' }),
-      protein: log.totalProtein,
-      carbs: log.totalCarbs,
-      fats: log.totalFats
-    }));
-
-    // 3. Food Quality Breakdown (Last 30 Days)
+    // 2. Real Food Quality Breakdown (Last 30 Days)
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 30);
 
@@ -203,50 +225,38 @@ exports.getAnalytics = async (req, res) => {
     });
 
     let healthy = 0, moderate = 0, unhealthy = 0;
+    recentScans.forEach(scan => {
+      if (scan.healthScore === null || scan.healthScore === undefined) return;
+      if (scan.healthScore >= 60) healthy++;
+      else if (scan.healthScore >= 40) moderate++;
+      else unhealthy++;
+    });
 
-    if (recentScans.length > 0) {
-      recentScans.forEach(scan => {
-        if (scan.healthScore === null || scan.healthScore === undefined) return;
-        if (scan.healthScore >= 60) healthy++;
-        else if (scan.healthScore >= 40) moderate++;
-        else unhealthy++;
-      });
-    } else {
-      // Default demo data for Quality if no scans
-      healthy = 12;
-      moderate = 5;
-      unhealthy = 3;
-    }
-
-    // 4. Smart Insights
+    // 3. Real Insights
     const insights = [];
-
-    // Protein check
     const profile = await UserWorkoutProfile.findOne({ userId });
     const weight = profile ? (profile.weight || 70) : 70;
     const proteinTarget = weight * 2;
 
-    const proteinDays = history.filter(h => h.totalProtein >= proteinTarget).length;
-    if (proteinDays >= 4) {
-      insights.push({ type: 'success', text: `You met your protein goal on ${proteinDays} days this week!` });
+    const daysMetProtein = weeklyMacros.filter(m => m.protein >= proteinTarget).length;
+    if (daysMetProtein > 0) {
+      insights.push({ type: 'success', text: `Met your daily protein target (${proteinTarget}g) on ${daysMetProtein} day(s) this week!` });
     } else {
-      insights.push({ type: 'warning', text: `Try to increase protein intake. Goal met only ${proteinDays} days.` });
+      insights.push({ type: 'warning', text: `Your daily protein target is ${proteinTarget}g based on body weight (${weight}kg). Log meals to track progress!` });
     }
 
-    // Health Score
-    const avgScore = healthScoreData.reduce((a, b) => a + b, 0) / (healthScoreData.length || 1);
-    if (avgScore > 70) insights.push({ type: 'success', text: `Great food choices! Your avg health score is ${Math.round(avgScore)}.` });
-    else if (avgScore < 50) insights.push({ type: 'warning', text: `Health score is low (${Math.round(avgScore)}). Try more whole foods.` });
-
-    // Consistency Score
-    const daysLogged = history.length;
-    const consistencyScore = 85;
+    const scannedCount = recentScans.length;
+    if (scannedCount > 0) {
+      insights.push({ type: 'success', text: `You have scanned ${scannedCount} food product(s) in the last 30 days.` });
+    } else {
+      insights.push({ type: 'info', text: `Use the Scan Food tab to scan barcodes & food labels for instant nutrition tracking!` });
+    }
 
     res.json({
       dailyTrend: { labels, calorieData, healthScoreData },
       weeklyMacros,
       foodQuality: { healthy, moderate, unhealthy },
-      consistencyScore,
+      consistencyScore: daysMetProtein > 0 ? Math.round((daysMetProtein / 7) * 100) : 0,
       insights
     });
 

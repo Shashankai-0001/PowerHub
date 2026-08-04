@@ -122,16 +122,74 @@ export default function DietDashboard() {
 
   // --- CHART CONFIGURATIONS ---
 
+  // --- CHART CONFIGURATIONS ---
+
   const commonChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { labels: { color: '#e5e7eb' } },
-      title: { color: '#e5e7eb' }
+      legend: { labels: { color: '#e5e7eb', font: { weight: 'bold' } } },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#e2e8f0',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        padding: 12,
+        boxPadding: 6,
+        usePointStyle: true,
+      }
     },
     scales: {
-      x: { ticks: { color: '#64748b' }, grid: { color: '#e2e8f0', drawBorder: false, color: 'rgba(255,255,255,0.05)' } },
-      y: { ticks: { color: '#64748b' }, grid: { color: '#e2e8f0', drawBorder: false, color: 'rgba(255,255,255,0.05)' } }
+      x: { ticks: { color: '#94a3b8', font: { weight: '600' } }, grid: { display: false } },
+      y: { ticks: { color: '#94a3b8', font: { weight: '600' } }, grid: { color: 'rgba(255,255,255,0.06)' } }
+    }
+  };
+
+  const calorieChartOptions = {
+    ...commonChartOptions,
+    plugins: {
+      ...commonChartOptions.plugins,
+      tooltip: {
+        ...commonChartOptions.plugins.tooltip,
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${context.raw.toLocaleString()} kcal`
+        }
+      }
+    }
+  };
+
+  const macroChartOptions = {
+    ...commonChartOptions,
+    plugins: {
+      ...commonChartOptions.plugins,
+      tooltip: {
+        ...commonChartOptions.plugins.tooltip,
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${context.raw}g`
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true, ticks: { color: '#94a3b8' }, grid: { display: false } },
+      y: { stacked: true, ticks: { color: '#94a3b8', callback: (v) => `${v}g` }, grid: { color: 'rgba(255,255,255,0.06)' } }
+    }
+  };
+
+  const healthChartOptions = {
+    ...commonChartOptions,
+    plugins: {
+      ...commonChartOptions.plugins,
+      tooltip: {
+        ...commonChartOptions.plugins.tooltip,
+        callbacks: {
+          label: (context) => `Health Score: ${context.raw} / 100`
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+      y: { min: 0, max: 100, ticks: { color: '#94a3b8', callback: (v) => `${v}/100` }, grid: { color: 'rgba(255,255,255,0.06)' } }
     }
   };
 
@@ -140,9 +198,14 @@ export default function DietDashboard() {
     maintainAspectRatio: false,
     cutout: '75%',
     plugins: {
-      legend: { labels: { color: '#e5e7eb' } }
+      legend: { labels: { color: '#e5e7eb', font: { weight: 'bold' } } },
+      tooltip: {
+        callbacks: {
+          label: (context) => ` ${context.label}: ${context.raw} logged items`
+        }
+      }
     }
-  }
+  };
 
   // 1. Calorie Trend (Line Chart)
   const calorieTrendData = {
@@ -151,24 +214,27 @@ export default function DietDashboard() {
       {
         label: 'Calories Consumed',
         data: analytics.dailyTrend.calorieData,
-        borderColor: '#7000FF',
-        pointBackgroundColor: '#000',
-        pointBorderColor: '#7000FF',
+        borderColor: '#00A3FF',
+        pointBackgroundColor: '#00A3FF',
+        pointBorderColor: '#ffffff',
+        pointHoverRadius: 7,
+        pointRadius: 4,
         backgroundColor: (context) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-          gradient.addColorStop(0, 'rgba(112, 0, 255, 0.4)');
-          gradient.addColorStop(1, 'rgba(112, 0, 255, 0.0)');
+          gradient.addColorStop(0, 'rgba(0, 163, 255, 0.4)');
+          gradient.addColorStop(1, 'rgba(0, 163, 255, 0.0)');
           return gradient;
         },
         tension: 0.4,
         fill: true
       },
       {
-        label: 'Daily Goal',
+        label: 'Daily Target Goal',
         data: analytics.dailyTrend.labels.map(() => diet.calories),
-        borderColor: 'rgba(255,255,255,0.5)',
-        borderDash: [5, 5],
+        borderColor: '#10B981',
+        borderDash: [6, 6],
+        borderWidth: 2,
         tension: 0,
         pointRadius: 0
       }
@@ -182,19 +248,19 @@ export default function DietDashboard() {
       {
         label: 'Protein',
         data: analytics.weeklyMacros.map(m => m.protein),
-        backgroundColor: '#CCFF00',
+        backgroundColor: '#10B981',
         borderRadius: 4,
       },
       {
         label: 'Carbs',
         data: analytics.weeklyMacros.map(m => m.carbs),
-        backgroundColor: '#ffffff',
+        backgroundColor: '#00A3FF',
         borderRadius: 4,
       },
       {
         label: 'Fats',
         data: analytics.weeklyMacros.map(m => m.fats),
-        backgroundColor: '#00F0FF',
+        backgroundColor: '#8B5CF6',
         borderRadius: 4,
       },
     ]
@@ -207,14 +273,16 @@ export default function DietDashboard() {
       {
         label: 'Health Score',
         data: analytics.dailyTrend.healthScoreData,
-        borderColor: '#00F0FF',
-        pointBackgroundColor: '#000',
-        pointBorderColor: '#00F0FF',
+        borderColor: '#10B981',
+        pointBackgroundColor: '#10B981',
+        pointBorderColor: '#ffffff',
+        pointHoverRadius: 7,
+        pointRadius: 4,
         backgroundColor: (context) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-          gradient.addColorStop(0, 'rgba(0, 240, 255, 0.4)');
-          gradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+          gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+          gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
           return gradient;
         },
         tension: 0.4,
@@ -232,7 +300,7 @@ export default function DietDashboard() {
         analytics.foodQuality.moderate,
         analytics.foodQuality.unhealthy
       ],
-      backgroundColor: ['#CCFF00', '#f59e0b', '#FF003C'],
+      backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
       borderWidth: 0
     }]
   };
@@ -288,7 +356,7 @@ export default function DietDashboard() {
                 <Flame className="w-5 h-5 text-orange-500" /> Calorie Trend
               </h3>
               <div className="h-72">
-                <Line data={calorieTrendData} options={commonChartOptions} />
+                <Line data={calorieTrendData} options={calorieChartOptions} />
               </div>
             </div>
 
@@ -311,7 +379,7 @@ export default function DietDashboard() {
                 <Zap className="w-5 h-5 text-secondary" /> Weekly Macros
               </h3>
               <div className="h-72">
-                <Bar data={macroStackData} options={{ ...commonChartOptions, scales: { x: { ...commonChartOptions.scales.x, stacked: true }, y: { ...commonChartOptions.scales.y, stacked: true } } }} />
+                <Bar data={macroStackData} options={macroChartOptions} />
               </div>
             </div>
 
@@ -320,7 +388,7 @@ export default function DietDashboard() {
                 <Activity className="w-5 h-5 text-cyan-400" /> Health Score History
               </h3>
               <div className="h-72">
-                <Line data={healthTrendData} options={commonChartOptions} />
+                <Line data={healthTrendData} options={healthChartOptions} />
               </div>
             </div>
 

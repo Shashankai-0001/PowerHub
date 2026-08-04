@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import ExerciseCard from '../components/ExerciseCard';
 
 const ExerciseLibrary = () => {
@@ -19,15 +19,11 @@ const ExerciseLibrary = () => {
     const fetchExercises = async () => {
         setLoading(true);
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = user ? user.token : null;
             const params = new URLSearchParams(filters).toString();
-            const res = await axios.get(`http://localhost:5001/api/v1/workouts/exercises?${params}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get(`/api/v1/workouts/exercises?${params}`);
             setExercises(res.data);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching exercises:', err);
         } finally {
             setLoading(false);
         }

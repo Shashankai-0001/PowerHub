@@ -1,3 +1,4 @@
+// Mongoose Schema Model for Weekly Workout Plans
 const mongoose = require('mongoose');
 
 const weeklyPlanSchema = new mongoose.Schema({

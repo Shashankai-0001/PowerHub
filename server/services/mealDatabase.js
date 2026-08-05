@@ -1,3 +1,4 @@
+// Predefined Meal Database for Nutrition Planning
 const meals = [
     {
         name: "Oatmeal with Whey Protein & Berries",

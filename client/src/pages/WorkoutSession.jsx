@@ -1,3 +1,4 @@
+// Active Workout Logging and Tracking Page
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';

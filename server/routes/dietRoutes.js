@@ -1,3 +1,4 @@
+// API Routes for Diet Logging and Analytics
 const express = require("express");
 const router = express.Router();
 const { getDietSummary, saveDietLog, getDietHistory, getAnalytics, generateMealPlan } = require("../controllers/dietController");

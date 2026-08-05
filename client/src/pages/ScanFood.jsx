@@ -1,3 +1,4 @@
+// Food Barcode Scanning and Nutrition Lookup Page
 import { useState } from 'react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import scanService from '../services/scanService';

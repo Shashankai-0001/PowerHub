@@ -1,3 +1,4 @@
+// Interactive Barcode Scanner Component using Quagga
 import React, { useEffect, useRef, useState } from 'react';
 import Quagga from 'quagga';
 

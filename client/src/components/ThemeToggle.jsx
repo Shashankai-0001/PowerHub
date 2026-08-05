@@ -1,3 +1,4 @@
+// Dark and Light Mode Theme Switcher Component
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 

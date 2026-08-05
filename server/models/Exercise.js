@@ -1,3 +1,4 @@
+// Mongoose Schema Model for Fitness Exercises
 const mongoose = require('mongoose');
 
 const exerciseSchema = new mongoose.Schema({

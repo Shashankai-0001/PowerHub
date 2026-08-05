@@ -1,4 +1,5 @@
 {
+  "//": "PowerHub Client React Package Configuration",
   "name": "client",
   "private": true,
   "version": "0.0.0",

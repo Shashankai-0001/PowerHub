@@ -1,3 +1,4 @@
+// Intelligent Diet Plan Generation Engine
 // server/services/dietEngine.js
 
 // Mifflin-St Jeor Formula

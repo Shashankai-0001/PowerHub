@@ -1,3 +1,4 @@
+// Mongoose Schema Model for User Notes
 const mongoose = require('mongoose');
 
 const noteSchema = new mongoose.Schema({

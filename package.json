@@ -1,4 +1,5 @@
 {
+  "//": "PowerHub Full-Stack Unified Package Configuration",
   "name": "powerhub",
   "version": "1.0.0",
   "private": true,

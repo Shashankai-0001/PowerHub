@@ -1,3 +1,4 @@
+// Reusable Exercise Card Display Component
 import React, { useState } from 'react';
 
 const ExerciseCard = ({ exercise, onSelect, onAdd }) => {

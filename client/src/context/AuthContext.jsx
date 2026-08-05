@@ -1,3 +1,4 @@
+// React Auth Context for User Session Management
 import { createContext, useState, useEffect } from 'react';
 import authService from '../services/authService';
 

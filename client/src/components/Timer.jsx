@@ -1,3 +1,4 @@
+// Countdown Rest Timer Component
 import React, { useState, useEffect } from 'react';
 
 const Timer = ({ duration, onComplete }) => {

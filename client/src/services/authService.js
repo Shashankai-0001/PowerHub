@@ -1,3 +1,4 @@
+// Service Layer for Auth API Calls
 import api from '../api';
 
 // API_URL handled in ../api.js

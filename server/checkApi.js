@@ -1,3 +1,4 @@
+// Diagnostic Utility for Checking API Endpoints
 const axios = require('axios');
 const mongoose = require('mongoose');
 const User = require('./models/User');

@@ -1,3 +1,4 @@
+<!-- PowerHub Project Overview and Technical Documentation -->
 # ⚡ PowerHub — Modern Fitness & Health Platform
 
 <p align="center">

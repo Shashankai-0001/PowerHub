@@ -1,3 +1,4 @@
+// Diagnostic Utility Script for Verifying Record Names
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Exercise = require('./models/Exercise');

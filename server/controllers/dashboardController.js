@@ -1,3 +1,4 @@
+// Controller for Fetching PowerHub User Dashboard Metrics
 const WorkoutSession = require('../models/WorkoutSession');
 const FoodScan = require('../models/FoodScan');
 const DietLog = require('../models/DietLog');

@@ -1,3 +1,4 @@
+// Personal Notes and Reminders Management Page
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 

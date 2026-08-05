@@ -1,3 +1,4 @@
+// User Registration Account Creation Page
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';

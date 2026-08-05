@@ -1,3 +1,4 @@
+// Script to Populate Additional Exercises in Database
 const mongoose = require('mongoose');
 const dns = require('dns');
 const dotenv = require('dotenv');

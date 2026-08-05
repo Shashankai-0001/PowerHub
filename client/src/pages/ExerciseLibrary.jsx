@@ -1,3 +1,4 @@
+// Exercise Library and Search Page Component
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 import ExerciseCard from '../components/ExerciseCard';

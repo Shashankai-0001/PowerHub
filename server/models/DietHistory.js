@@ -1,3 +1,4 @@
+// Mongoose Schema Model for Daily Diet History Records
 const mongoose = require('mongoose');
 
 const dietHistorySchema = new mongoose.Schema({

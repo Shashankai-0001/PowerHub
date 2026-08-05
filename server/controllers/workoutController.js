@@ -1,3 +1,4 @@
+// Controller for Managing Workout Sessions and Routines
 const mongoose = require('mongoose');
 const UserWorkoutProfile = require('../models/UserWorkoutProfile');
 const Exercise = require('../models/Exercise');

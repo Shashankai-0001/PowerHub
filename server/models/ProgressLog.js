@@ -1,3 +1,4 @@
+// Mongoose Schema Model for Progress and Metric Tracking
 const mongoose = require('mongoose');
 
 const progressLogSchema = new mongoose.Schema({

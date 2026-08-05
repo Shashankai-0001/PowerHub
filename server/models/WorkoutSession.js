@@ -1,3 +1,4 @@
+// Mongoose Schema Model for User Workout Sessions
 const mongoose = require('mongoose');
 
 const workoutSessionSchema = new mongoose.Schema({

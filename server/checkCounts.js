@@ -1,3 +1,4 @@
+// Diagnostic Script for Database Record Counts
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Exercise = require('./models/Exercise');

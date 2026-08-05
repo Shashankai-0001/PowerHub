@@ -1,3 +1,4 @@
+// React Context for Application Modal Management
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, AlertCircle, Info, X, ShieldAlert } from 'lucide-react';

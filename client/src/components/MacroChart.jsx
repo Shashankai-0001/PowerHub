@@ -1,3 +1,4 @@
+// Macro Nutrition Chart Component using Chart.js
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 export function MacroChart({ data }) {

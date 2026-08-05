@@ -1,3 +1,4 @@
+// Mongoose Schema Model for User Reminders
 const mongoose = require('mongoose');
 
 const reminderSchema = new mongoose.Schema({

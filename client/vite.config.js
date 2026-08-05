@@ -1,3 +1,4 @@
+// Vite Bundler Configuration for React Frontend
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 

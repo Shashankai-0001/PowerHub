@@ -1,3 +1,4 @@
+// Reusable Stat Display Card Component
 import { motion } from 'motion/react';
 import { TrendingUp } from 'lucide-react';
 

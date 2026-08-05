@@ -1,3 +1,4 @@
+// MongoDB Connection Setup and Fallback Handler
 const mongoose = require('mongoose');
 const dns = require('dns');
 

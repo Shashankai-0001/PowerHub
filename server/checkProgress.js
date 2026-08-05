@@ -1,3 +1,4 @@
+// Diagnostic Utility for Verifying Progress Log Data
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const WorkoutSession = require('./models/WorkoutSession');

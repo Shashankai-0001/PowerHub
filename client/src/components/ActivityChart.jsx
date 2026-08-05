@@ -1,3 +1,4 @@
+// Activity Chart Component for Workout Progress
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export function ActivityChart({ data }) {

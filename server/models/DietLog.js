@@ -1,3 +1,4 @@
+// Mongoose Schema Model for Individual Diet Logs
 const mongoose = require('mongoose');
 
 const dietLogSchema = new mongoose.Schema({

@@ -1,12 +1,11 @@
 services:
-  # Backend Web Service
+  # Single Full-Stack Web Service (Node + React SPA)
   - type: web
-    name: powerhub-backend
+    name: powerhub
     env: node
     plan: free
-    rootDir: server
-    buildCommand: npm install
-    startCommand: node server.js
+    buildCommand: npm run build
+    startCommand: npm start
     envVars:
       - key: MONGO_URI
         value: mongodb+srv://powerhub:powerhub@powerhub.iietqg7.mongodb.net/?appName=powerhub
@@ -14,23 +13,3 @@ services:
         value: secret
       - key: FOOD_API_BASE
         value: https://world.openfoodfacts.org
-
-  # Frontend Static Site
-  - type: web
-    name: powerhub-frontend
-    env: static
-    plan: free
-    rootDir: client
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: PowerHub
-          property: url
-

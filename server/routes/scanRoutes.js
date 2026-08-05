@@ -1,4 +1,5 @@
 // API Routes for Food Barcode Scanning and Analysis
+// Routes mapping for /api/v1/scan endpoints
 const express = require('express');
 const router = express.Router();
 const FoodScan = require('../models/FoodScan');

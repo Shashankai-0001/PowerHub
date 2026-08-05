@@ -1,4 +1,5 @@
 // Macro Nutrition Chart Component using Chart.js
+// Displays protein, carbs, and fat breakdown with interactive charts
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 export function MacroChart({ data }) {

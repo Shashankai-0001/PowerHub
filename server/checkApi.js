@@ -1,4 +1,5 @@
 // Diagnostic Utility for Checking API Endpoints
+// Verification script to test API endpoint availability
 const axios = require('axios');
 const mongoose = require('mongoose');
 const User = require('./models/User');

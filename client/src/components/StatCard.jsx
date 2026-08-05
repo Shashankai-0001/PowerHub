@@ -1,4 +1,5 @@
 // Reusable Stat Display Card Component
+// Key performance metric display card with icons and trends
 import { motion } from 'motion/react';
 import { TrendingUp } from 'lucide-react';
 

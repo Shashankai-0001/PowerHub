@@ -1,4 +1,5 @@
 // MongoDB Connection Setup and Fallback Handler
+// Connects to MongoDB Atlas or local MongoDB Memory Server fallback
 const mongoose = require('mongoose');
 const dns = require('dns');
 

@@ -1,4 +1,5 @@
 // Controller for Managing Diet Logs, History, and AI Meal Plans
+// Handles diet logging, daily summary generation, and meal recommendations
 const UserWorkoutProfile = require("../models/UserWorkoutProfile");
 const ProgressLog = require("../models/ProgressLog");
 const { calculateBMR, calculateTDEE, calculateMacros } = require("../services/dietEngine");

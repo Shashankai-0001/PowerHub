@@ -1,4 +1,5 @@
 // Stopwatch Timer Component for Workouts
+// Precision stopwatch for timing exercise sets and workout duration
 import React, { useState, useEffect } from 'react';
 
 const Stopwatch = () => {

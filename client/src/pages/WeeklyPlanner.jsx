@@ -1,4 +1,5 @@
 // Weekly Workout Routine Planning Page
+// Drag-and-drop weekly workout planning interface
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 

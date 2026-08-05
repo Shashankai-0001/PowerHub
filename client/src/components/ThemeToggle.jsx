@@ -1,4 +1,5 @@
 // Dark and Light Mode Theme Switcher Component
+// Controls application dark/light visual theme preferences
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 

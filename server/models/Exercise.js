@@ -1,4 +1,5 @@
 // Mongoose Schema Model for Fitness Exercises
+// Schema for exercise definitions, instructions, and muscle groups
 const mongoose = require('mongoose');
 
 const exerciseSchema = new mongoose.Schema({

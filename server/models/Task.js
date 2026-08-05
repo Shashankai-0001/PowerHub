@@ -1,4 +1,5 @@
 // Mongoose Schema Model for User Tasks
+// Schema for daily fitness tasks
 const mongoose = require('mongoose');
 
 const taskSchema = new mongoose.Schema({

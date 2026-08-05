@@ -1,4 +1,5 @@
 // Interactive Barcode Scanner Component using Quagga
+// Uses Quagga library to scan food barcodes via device camera
 import React, { useEffect, useRef, useState } from 'react';
 import Quagga from 'quagga';
 

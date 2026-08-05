@@ -1,4 +1,5 @@
 # Git Ignore Patterns for Client Workspace
+# Frontend build artifact and node_modules ignore rules
 # Logs
 logs
 *.log

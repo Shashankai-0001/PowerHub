@@ -1,4 +1,5 @@
 // Route Wrapper Component for Authenticated Access
+// Ensures routes are accessible only to authenticated users
 import { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';

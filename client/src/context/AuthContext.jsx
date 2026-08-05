@@ -1,4 +1,5 @@
 // React Auth Context for User Session Management
+// Global authentication context for user state and token management
 import { createContext, useState, useEffect } from 'react';
 import authService from '../services/authService';
 

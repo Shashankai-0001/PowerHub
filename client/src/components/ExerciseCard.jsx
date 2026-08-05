@@ -1,4 +1,5 @@
 // Reusable Exercise Card Display Component
+// Renders individual exercise details, targeted muscles, and animations
 import React, { useState } from 'react';
 
 const ExerciseCard = ({ exercise, onSelect, onAdd }) => {

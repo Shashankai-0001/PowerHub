@@ -1,4 +1,5 @@
 // Tailwind CSS Theme and Plugin Configuration
+// Configures Tailwind color palette, fonts, and responsive breakpoints
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [

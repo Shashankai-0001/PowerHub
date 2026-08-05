@@ -1,4 +1,5 @@
 // API Routes for Workouts and Sessions
+// Routes mapping for /api/v1/workouts endpoints
 const express = require('express');
 const router = express.Router();
 const workoutController = require('../controllers/workoutController');

@@ -1,4 +1,5 @@
 // User Registration Account Creation Page
+// Account registration page for new PowerHub users
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';

@@ -1,4 +1,5 @@
 // Diagnostic Script for Verifying Database Integrity
+// Internal data audit script for schema compliance
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Exercise = require('./models/Exercise');

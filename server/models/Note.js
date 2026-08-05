@@ -1,4 +1,5 @@
 // Mongoose Schema Model for User Notes
+// Schema for user fitness notes
 const mongoose = require('mongoose');
 
 const noteSchema = new mongoose.Schema({

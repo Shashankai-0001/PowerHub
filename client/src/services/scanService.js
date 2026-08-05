@@ -1,4 +1,5 @@
 // Service Layer for Food Scan API Calls
+// Handles barcode scan requests and nutrition database queries
 import api from '../api';
 
 // API_URL handled in ../api.js

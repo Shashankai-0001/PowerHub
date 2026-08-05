@@ -1,4 +1,5 @@
 // Mongoose Schema Model for Tracking User Health Scores
+// Schema for tracking daily user health score metrics
 const mongoose = require('mongoose');
 
 const healthScoreLogSchema = new mongoose.Schema({

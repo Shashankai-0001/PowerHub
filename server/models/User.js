@@ -1,4 +1,5 @@
 // Mongoose Schema Model for PowerHub User Accounts
+// Schema for user credentials, profiles, and preferences
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

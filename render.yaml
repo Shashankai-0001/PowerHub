@@ -1,4 +1,5 @@
 # Render Single-Service Deployment Blueprint Configuration
+# Automated single-service cloud deployment blueprint for Render
 services:
   # Single Full-Stack Web Service (Node + React SPA)
   - type: web

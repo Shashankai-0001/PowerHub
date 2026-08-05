@@ -1,5 +1,6 @@
 {
   "//": "PowerHub Backend Node Package Configuration",
+  "//_description": "Express server dependencies and start script rules",
   "name": "server",
   "version": "1.0.0",
   "description": "",

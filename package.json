@@ -1,5 +1,6 @@
 {
   "//": "PowerHub Full-Stack Unified Package Configuration",
+  "//_description": "Unified root configuration for PowerHub client & server deployment",
   "name": "powerhub",
   "version": "1.0.0",
   "private": true,

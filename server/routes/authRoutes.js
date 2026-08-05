@@ -1,4 +1,5 @@
 // API Routes for User Authentication
+// Routes mapping for /api/v1/auth endpoints
 const express = require('express');
 const router = express.Router();
 const { registerUser, loginUser } = require('../controllers/authController');

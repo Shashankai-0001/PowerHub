@@ -1,4 +1,5 @@
 // API Routes for Diet Logging and Analytics
+// Routes mapping for /api/diet endpoints
 const express = require("express");
 const router = express.Router();
 const { getDietSummary, saveDietLog, getDietHistory, getAnalytics, generateMealPlan } = require("../controllers/dietController");

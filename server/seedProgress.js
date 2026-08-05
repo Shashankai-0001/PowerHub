@@ -1,4 +1,5 @@
 // Database Seed Script for User Progress Logs
+// Populates sample user progress data for testing
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const User = require('./models/User');

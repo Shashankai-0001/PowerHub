@@ -1,4 +1,5 @@
 // Contact Section Component for User Feedback
+// Interactive user feedback form and direct contact links
 import { useState } from 'react';
 import { Phone, Mail, Check, Copy, ExternalLink, ShieldCheck, MessageCircle, Sparkles, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';

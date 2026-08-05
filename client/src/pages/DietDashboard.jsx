@@ -1,4 +1,5 @@
 // Diet Dashboard Page Component
+// Tracks daily calorie consumption, macro breakdowns, and meal plans
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {

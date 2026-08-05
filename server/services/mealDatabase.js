@@ -1,4 +1,5 @@
 // Predefined Meal Database for Nutrition Planning
+// Curated list of healthy meals and macro content
 const meals = [
     {
         name: "Oatmeal with Whey Protein & Berries",

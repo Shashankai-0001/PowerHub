@@ -1,4 +1,5 @@
 // Activity Chart Component for Workout Progress
+// Visualizes weekly and monthly workout sessions using charts
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export function ActivityChart({ data }) {

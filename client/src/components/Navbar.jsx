@@ -1,4 +1,5 @@
 // Header Navigation Bar Component
+// Top navigation bar displaying brand logo and quick access options
 import { Link, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import AuthContext from '../context/AuthContext';

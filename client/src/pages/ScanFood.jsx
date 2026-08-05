@@ -1,4 +1,5 @@
 // Food Barcode Scanning and Nutrition Lookup Page
+// Live food scanning page integrating Open Food Facts lookup
 import { useState } from 'react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import scanService from '../services/scanService';

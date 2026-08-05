@@ -1,4 +1,5 @@
 // PowerHub Express Backend Server Entry Point
+// Configures Express app, API routes, CORS, and static SPA serving
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');

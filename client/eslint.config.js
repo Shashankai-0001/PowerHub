@@ -1,4 +1,5 @@
 // ESLint Linting Rules and Parser Configuration
+// Code quality and linting standard settings for client codebase
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

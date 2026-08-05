@@ -1,4 +1,5 @@
 // Mongoose Schema Model for User Workout Preferences and Profile
+// Schema for fitness level, equipment, and workout preferences
 const mongoose = require('mongoose');
 
 const userWorkoutProfileSchema = new mongoose.Schema({

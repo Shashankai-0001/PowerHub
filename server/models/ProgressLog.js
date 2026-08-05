@@ -1,4 +1,5 @@
 // Mongoose Schema Model for Progress and Metric Tracking
+// Schema for tracking body metrics and workout volume
 const mongoose = require('mongoose');
 
 const progressLogSchema = new mongoose.Schema({

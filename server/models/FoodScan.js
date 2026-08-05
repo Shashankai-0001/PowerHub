@@ -1,4 +1,5 @@
 // Mongoose Schema Model for Scanned Food Items
+// Schema for storing scanned barcode food items
 const mongoose = require('mongoose');
 
 const foodScanSchema = mongoose.Schema(

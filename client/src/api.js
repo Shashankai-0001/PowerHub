@@ -1,4 +1,5 @@
 // Axios API Client Configuration with Token Interceptors
+// Intercepts requests to attach JWT token and handle 401 unauthenticated errors
 import axios from "axios";
 
 const api = axios.create({

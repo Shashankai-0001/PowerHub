@@ -1,4 +1,5 @@
 // Diagnostic Utility Script for Verifying Record Names
+// Checks database records for duplicate exercise names
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Exercise = require('./models/Exercise');

@@ -1,4 +1,5 @@
 # Git Ignore Rules for PowerHub Workspace
+# Managed workspace ignore patterns for PowerHub
 node_modules/
 **/node_modules/
 .env

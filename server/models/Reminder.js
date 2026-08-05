@@ -1,4 +1,5 @@
 // Mongoose Schema Model for User Reminders
+// Schema for scheduling user fitness notifications
 const mongoose = require('mongoose');
 
 const reminderSchema = new mongoose.Schema({

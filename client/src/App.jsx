@@ -1,4 +1,5 @@
 // Main PowerHub React Application Component and Routes
+// Primary application routing, layout wrapper, and toast notifications
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ModalProvider } from './context/ModalContext';

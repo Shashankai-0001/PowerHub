@@ -1,4 +1,5 @@
 // JWT Protection Middleware for Secure API Endpoints
+// Validates Bearer JWT token on incoming requests
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 

@@ -1,4 +1,5 @@
 // Vite Bundler Configuration for React Frontend
+// Configures Vite dev server, proxies, and React plugin settings
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 

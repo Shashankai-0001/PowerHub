@@ -1,4 +1,5 @@
 // PowerHub Landing and Home Page Component
+// Main hero landing page highlighting PowerHub features
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';

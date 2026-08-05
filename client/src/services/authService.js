@@ -1,4 +1,5 @@
 // Service Layer for Auth API Calls
+// Handles login, registration, and user session API calls
 import api from '../api';
 
 // API_URL handled in ../api.js

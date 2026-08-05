@@ -1,4 +1,5 @@
 // User Analytics and Progress Dashboard Page
+// Detailed analytics tracking body weight, volume, and personal records
 import React, { useState, useEffect } from 'react';
 import { Line, Bar } from 'react-chartjs-2';
 import {

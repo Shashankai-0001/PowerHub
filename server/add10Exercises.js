@@ -1,4 +1,5 @@
 // Script to Populate Additional Exercises in Database
+// Utility script to seed 10 common gym exercises
 const mongoose = require('mongoose');
 const dns = require('dns');
 const dotenv = require('dotenv');

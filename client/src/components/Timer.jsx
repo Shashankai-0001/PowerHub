@@ -1,4 +1,5 @@
 // Countdown Rest Timer Component
+// Rest interval countdown timer with audio/visual notifications
 import React, { useState, useEffect } from 'react';
 
 const Timer = ({ duration, onComplete }) => {

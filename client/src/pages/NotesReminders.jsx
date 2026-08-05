@@ -1,4 +1,5 @@
 // Personal Notes and Reminders Management Page
+// Personal fitness notes and scheduled reminder management
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 

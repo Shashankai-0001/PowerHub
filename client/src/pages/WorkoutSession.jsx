@@ -1,4 +1,5 @@
 // Active Workout Logging and Tracking Page
+// Live workout tracker with set counters and weight logging
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';

@@ -1,4 +1,5 @@
 // React Context for Application Modal Management
+// Global modal dialog state management across components
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, AlertCircle, Info, X, ShieldAlert } from 'lucide-react';

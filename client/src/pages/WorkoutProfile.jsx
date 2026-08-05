@@ -1,4 +1,5 @@
 // User Fitness Profile and Goal Setup Page
+// Fitness goal configuration and body metric settings
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';

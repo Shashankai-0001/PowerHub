@@ -1,4 +1,5 @@
 // Sidebar and Primary App Navigation Bar
+// Side navigation bar with active route highlighting and quick links
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Dumbbell, ScanLine, UtensilsCrossed, TrendingUp, LogOut, User, Maximize, Minimize } from 'lucide-react';
 import { motion } from 'motion/react';

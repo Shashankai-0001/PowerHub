@@ -1,4 +1,5 @@
 // Intelligent Diet Plan Generation Engine
+// Calculates BMR, TDEE, and macro targets based on user goals
 // server/services/dietEngine.js
 
 // Mifflin-St Jeor Formula

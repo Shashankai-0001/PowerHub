@@ -1,4 +1,5 @@
 // Diagnostic Script for Database Record Counts
+// Diagnostic tool to verify collection document totals
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Exercise = require('./models/Exercise');

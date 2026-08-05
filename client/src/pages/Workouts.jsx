@@ -1,4 +1,5 @@
 // Workout Routines Overview Page
+// Overview of saved workout routines and quick start buttons
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { PlayCircle, BookOpen, Calendar } from 'lucide-react';

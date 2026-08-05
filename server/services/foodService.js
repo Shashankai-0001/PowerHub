@@ -1,4 +1,5 @@
 // External Open Food Facts API Service Integration
+// Queries Open Food Facts API for nutrition facts
 const axios = require("axios");
 
 /**

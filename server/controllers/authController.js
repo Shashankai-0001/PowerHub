@@ -1,4 +1,5 @@
 // Authentication Controller for User Registration and Login
+// Handles user registration, password hashing, and JWT token issuance
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 

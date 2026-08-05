@@ -1,4 +1,5 @@
 // User Activity and Diet History Page Component
+// Historical logs for workouts completed and meals scanned
 import { useEffect, useState } from 'react';
 import scanService from '../services/scanService';
 import axios from 'axios';

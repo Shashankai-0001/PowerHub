@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const dns = require('dns');
-const { MongoMemoryServer } = require('mongodb-memory-server');
 
 let mongoServerInstance = null;
 
@@ -16,8 +15,9 @@ const connectDB = async () => {
         const conn = await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 });
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
-        console.warn(`Atlas MONGO_URI unreachable (${error.message}). Starting local database server...`);
+        console.warn(`Atlas MONGO_URI unreachable (${error.message}). Attempting local database server fallback...`);
         try {
+            const { MongoMemoryServer } = require('mongodb-memory-server');
             if (!mongoServerInstance) {
                 mongoServerInstance = await MongoMemoryServer.create();
             }
@@ -25,9 +25,10 @@ const connectDB = async () => {
             const conn = await mongoose.connect(mongoUri);
             console.log(`Local Database Server Connected: ${conn.connection.host}`);
         } catch (memErr) {
-            console.error('Failed to start local mongo server:', memErr);
+            console.error('Failed to start local mongo server:', memErr.message);
         }
     }
 };
 
 module.exports = connectDB;
+

@@ -187,11 +187,11 @@ const WorkoutSession = () => {
     const progress = ((currentExerciseIndex + 1) / routine.exercises.length) * 100;
 
     return (
-        <div className="relative min-h-[90vh] pb-32 pt-8 overflow-hidden">
+        <div className="relative min-h-[80vh] pb-24 overflow-hidden">
             {/* Animated Background Glow */}
             <div className={`fixed inset-0 transition-colors duration-1000 opacity-[0.03] pointer-events-none blur-3xl ${phase === 'REST' ? 'bg-orange-500' : 'bg-primary'}`} />
 
-            <div className="container mx-auto px-4 max-w-6xl relative z-10">
+            <div className="w-full relative z-10 pt-2 sm:pt-4">
                 {/* Header Section */}
                 <motion.div 
                     initial={{ opacity: 0, y: -20 }}

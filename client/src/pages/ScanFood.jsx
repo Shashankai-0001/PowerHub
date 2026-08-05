@@ -57,7 +57,7 @@ const ScanFood = () => {
                                 <span className="flex-shrink mx-4 text-muted-foreground font-medium">OR</span>
                                 <div className="flex-grow border-t border-border"></div>
                             </div>
-                            <form onSubmit={manualSearch} className="flex gap-3">
+                            <form onSubmit={manualSearch} className="flex flex-col sm:flex-row gap-3">
                                 <input
                                     type="text"
                                     name="barcode"

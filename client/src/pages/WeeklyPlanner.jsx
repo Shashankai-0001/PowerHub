@@ -72,7 +72,7 @@ const WeeklyPlanner = () => {
     if (loading) return <div className="p-6">Loading planner...</div>;
 
     return (
-        <div className="container mx-auto p-6 pb-24">
+        <div className="w-full pb-24 pt-2 sm:pt-4">
             <h2 className="text-4xl font-black mb-8 text-foreground tracking-tight">Weekly Workout Planner</h2>
 
             <div className="bg-card backdrop-blur-xl border border-border rounded-3xl overflow-hidden shadow-2xl">

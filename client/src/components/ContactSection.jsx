@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Phone, Mail, Check, Copy, ExternalLink, ShieldCheck, MessageCircle, Sparkles } from 'lucide-react';
+import { Phone, Mail, Check, Copy, ExternalLink, ShieldCheck, MessageCircle, Sparkles, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const ContactSection = () => {
@@ -185,11 +185,12 @@ export const ContactSection = () => {
                         className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
                     >
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
+                            initial={{ scale: 0.9, opacity: 0, y: 15 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-card border border-border rounded-3xl p-8 max-w-md w-full shadow-2xl relative"
+                            className="bg-card/95 backdrop-blur-2xl border border-border/90 rounded-[2.5rem] p-8 max-w-md w-full shadow-[0_25px_70px_rgba(0,0,0,0.6)] relative overflow-hidden"
                         >
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-3">
@@ -197,7 +198,7 @@ export const ContactSection = () => {
                                         <img src="/shashank-dubey.jpg" alt="Shashank Dubey" className="w-full h-full object-cover rounded-[0.9rem]" />
                                     </div>
                                     <div>
-                                        <h4 className="text-xl font-black text-foreground">
+                                        <h4 className="text-xl font-black text-foreground tracking-tight">
                                             {activeModal === 'phone' ? 'Connect via Phone' : 'Connect via Email'}
                                         </h4>
                                         <p className="text-xs text-muted-foreground font-medium">Shashank Dubey (Lead Engineer)</p>
@@ -205,9 +206,10 @@ export const ContactSection = () => {
                                 </div>
                                 <button 
                                     onClick={() => setActiveModal(null)}
-                                    className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground font-bold"
+                                    className="p-2.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                                    title="Close"
                                 >
-                                    ✕
+                                    <X className="w-5 h-5" />
                                 </button>
                             </div>
 

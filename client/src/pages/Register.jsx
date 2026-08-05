@@ -1,8 +1,8 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import { motion } from 'motion/react';
-import { UserPlus, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { UserPlus, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -11,6 +11,8 @@ const Register = () => {
         password: '',
         confirmPassword: '',
     });
+    const [errorMsg, setErrorMsg] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     const { name, email, password, confirmPassword } = formData;
     const { register, user } = useContext(AuthContext);
@@ -23,6 +25,7 @@ const Register = () => {
     }, [user, navigate]);
 
     const onChange = (e) => {
+        setErrorMsg('');
         setFormData((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
@@ -31,16 +34,22 @@ const Register = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        setErrorMsg('');
+
         if (password !== confirmPassword) {
-            alert('Passwords do not match');
-        } else {
-            try {
-                await register({ name, email, password });
-            } catch (error) {
-                console.error(error);
-                const message = error.response?.data?.message || 'Registration failed - Server unreachable or network error';
-                alert(message);
-            }
+            setErrorMsg('Passwords do not match');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            await register({ name, email, password });
+        } catch (error) {
+            console.error(error);
+            const message = error.response?.data?.message || 'Registration failed - Server unreachable or network error';
+            setErrorMsg(message);
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -70,6 +79,21 @@ const Register = () => {
                             Join the revolution and start your journey
                         </p>
                     </div>
+
+                    {/* Inline Error Banner */}
+                    <AnimatePresence>
+                        {errorMsg && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                                className="p-4 mb-6 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm font-semibold flex items-center gap-3 shadow-sm"
+                            >
+                                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                                <span>{errorMsg}</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <form className="space-y-6" onSubmit={onSubmit}>
                         <div className="space-y-4">
@@ -130,12 +154,17 @@ const Register = () => {
                         <div>
                             <button
                                 type="submit"
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:scale-[1.02]"
+                                disabled={submitting}
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                                    <ArrowRight className="h-5 w-5 text-primary-foreground/50 group-hover:text-primary-foreground transition-colors" />
+                                    {submitting ? (
+                                        <Loader2 className="h-5 w-5 text-primary-foreground/50 animate-spin" />
+                                    ) : (
+                                        <ArrowRight className="h-5 w-5 text-primary-foreground/50 group-hover:text-primary-foreground transition-colors" />
+                                    )}
                                 </span>
-                                Sign up
+                                {submitting ? 'Creating Account...' : 'Sign up'}
                             </button>
                         </div>
                     </form>

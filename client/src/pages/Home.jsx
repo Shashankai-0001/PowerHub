@@ -58,7 +58,7 @@ const Home = () => {
 
                 {/* Hero Section */}
                 <section className="relative min-h-[90vh] flex items-center justify-center px-4 overflow-hidden">
-                    <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+                    <div className="max-w-[1800px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
                         {/* Left Content */}
                         <motion.div
                             initial={{ opacity: 0, x: -50 }}
@@ -76,27 +76,27 @@ const Home = () => {
                                 </span>
                             </div>
 
-                            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-foreground mb-8 tracking-tighter leading-[1.05] drop-shadow-2xl">
+                            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-foreground mb-8 tracking-tighter leading-[1.05] drop-shadow-2xl">
                                 Transform Your <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#00A3FF] to-secondary">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-sky-400 to-primary dark:from-primary dark:via-cyan-300 dark:to-primary">
                                     Fitness Journey
                                 </span>
                             </h1>
 
-                            <p className="max-w-2xl mb-10 text-xl md:text-2xl leading-relaxed text-muted-foreground font-medium drop-shadow-md">
+                            <p className="max-w-2xl mb-10 text-base sm:text-xl md:text-2xl leading-relaxed text-muted-foreground font-medium drop-shadow-md">
                                 The ultimate all-in-one ecosystem. We combine intelligent workout generation, precise macro tracking, and real-time biometric analytics into one beautiful platform.
                             </p>
 
-                            <div className="flex flex-col sm:flex-row gap-6">
+                            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                                 <Link
                                     to="/register"
-                                    className="px-10 py-5 bg-primary text-primary-foreground font-black text-lg rounded-full hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(0,163,255,0.4)] flex items-center justify-center gap-3"
+                                    className="px-6 py-4 sm:px-10 sm:py-5 bg-primary text-primary-foreground font-black text-base sm:text-lg rounded-full hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(0,163,255,0.4)] flex items-center justify-center gap-3"
                                 >
                                     Start Your Journey <Zap className="w-5 h-5" />
                                 </Link>
                                 <Link
                                     to="/login"
-                                    className="px-10 py-5 text-lg font-bold transition-all duration-300 border bg-card text-foreground rounded-full border-border hover:bg-muted backdrop-blur-xl hover:-translate-y-1 shadow-xl flex items-center justify-center"
+                                    className="px-6 py-4 sm:px-10 sm:py-5 text-base sm:text-lg font-bold transition-all duration-300 border bg-card text-foreground rounded-full border-border hover:bg-muted backdrop-blur-xl hover:-translate-y-1 shadow-xl flex items-center justify-center"
                                 >
                                     Sign In
                                 </Link>
@@ -124,7 +124,7 @@ const Home = () => {
 
                 {/* Features Section */}
                 <section className="py-24 px-4 bg-muted/30 border-y border-border backdrop-blur-sm relative z-10">
-                    <div className="max-w-7xl mx-auto">
+                    <div className="max-w-[1800px] w-full mx-auto">
                         <div className="text-center mb-20">
                             <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight mb-6">Everything you need. <br/><span className="text-muted-foreground">Nothing you don't.</span></h2>
                             <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium">Replace three different apps with one unified, intelligent platform.</p>
@@ -309,7 +309,7 @@ const Home = () => {
     const { stats, activityChartData, macroChartData, recentActivities } = dashboardData || {};
 
     return (
-        <div className="relative px-4 py-8 pb-24 mx-auto max-w-7xl sm:px-6 lg:px-8 md:pb-12">
+        <div className="relative px-4 py-8 pb-24 mx-auto max-w-[1800px] w-full sm:px-6 lg:px-8 md:pb-12">
             <div className="fixed inset-0 pointer-events-none">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
                 <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[120px]" />
@@ -324,7 +324,7 @@ const Home = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="mb-2 text-4xl font-black tracking-tight md:text-5xl text-foreground">
-                            Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                            Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-sky-400 to-primary dark:from-primary dark:via-cyan-300 dark:to-primary">
                                 {user.name || 'Athlete'}
                             </span>
                         </h1>

@@ -141,7 +141,10 @@ const ProgressDashboard = () => {
         if (!selectedExercise) return { labels: [], datasets: [] };
 
         const exerciseLogs = logs
-            .filter(log => log.exerciseId === selectedExercise)
+            .filter(log => {
+                const exId = typeof log.exerciseId === 'object' && log.exerciseId !== null ? log.exerciseId._id : log.exerciseId;
+                return String(exId) === String(selectedExercise);
+            })
             .sort((a, b) => new Date(a.date) - new Date(b.date));
 
         return {
@@ -208,14 +211,17 @@ const ProgressDashboard = () => {
         </div>
     );
 
-    const loggedExerciseIds = [...new Set(logs.map(log => log.exerciseId))];
-    const loggedExercises = exercises.filter(ex => loggedExerciseIds.includes(ex._id));
+    const loggedExerciseIds = [...new Set(logs.map(log => {
+        if (!log.exerciseId) return null;
+        return typeof log.exerciseId === 'object' && log.exerciseId !== null ? String(log.exerciseId._id) : String(log.exerciseId);
+    }).filter(Boolean))];
+    const loggedExercises = exercises.filter(ex => loggedExerciseIds.includes(String(ex._id)));
 
     return (
-        <div className="container mx-auto p-6 space-y-8 pb-32">
-            <div className="flex items-center justify-between">
-                <h2 className="text-4xl font-black text-foreground tracking-tighter">Your <span className="text-primary">Progress</span></h2>
-                <div className="px-4 py-2 bg-muted rounded-full border border-border text-xs font-bold text-muted-foreground uppercase tracking-widest">
+        <div className="max-w-[1800px] w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 pb-32">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h2 className="text-2xl sm:text-4xl font-black text-foreground tracking-tighter">Your <span className="text-primary">Progress</span></h2>
+                <div className="self-start sm:self-auto px-4 py-2 bg-muted rounded-full border border-border text-xs font-bold text-muted-foreground uppercase tracking-widest">
                     Last 30 Days
                 </div>
             </div>

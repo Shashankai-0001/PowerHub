@@ -15,8 +15,8 @@ const Workouts = () => {
     return (
         <div className="min-h-screen bg-background">
             {/* Unified Sub-Navigation Header */}
-            <div className="bg-card/50 backdrop-blur-xl border-b border-border sticky top-16 z-30 pt-6 px-4 sm:px-6 lg:px-8 shadow-sm">
-                <div className="max-w-7xl mx-auto flex gap-6 overflow-x-auto custom-scrollbar pb-2">
+            <div className="bg-card/80 backdrop-blur-xl border-b border-border sticky top-20 z-30 pt-4 pb-2 px-4 sm:px-6 lg:px-8 shadow-md">
+                <div className="max-w-[1800px] w-full mx-auto flex gap-6 overflow-x-auto custom-scrollbar">
                     {tabs.map(tab => {
                         const Icon = tab.icon;
                         const isActive = location.pathname === tab.path;
@@ -47,7 +47,7 @@ const Workouts = () => {
             </div>
 
             {/* Child Routes Content */}
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-[1800px] w-full mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-12 sm:pb-16">
                 <Outlet />
             </div>
         </div>

@@ -22,9 +22,9 @@ function App() {
     <Router>
       <AuthProvider>
         <ModalProvider>
-          <div className="min-h-screen bg-background font-sans text-foreground">
+          <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden max-w-full">
             <Navigation />
-            <div className="pt-16">
+            <div className="pt-20 max-w-full overflow-x-hidden">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />

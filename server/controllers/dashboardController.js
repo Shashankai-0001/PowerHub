@@ -8,12 +8,14 @@ const DietLog = require('../models/DietLog');
 const getDashboardData = async (req, res) => {
     try {
         const userId = req.user._id;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(today.getDate() - 6);
-        sevenDaysAgo.setHours(0, 0, 0, 0);
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
 
         // 1. Fetch Workout Sessions (Last 7 days)
         const workouts = await WorkoutSession.find({
@@ -21,15 +23,16 @@ const getDashboardData = async (req, res) => {
             date: { $gte: sevenDaysAgo }
         }).sort({ date: 1 });
 
-        // Calculate Stats
+        // Calculate Stats for Today
         let caloriesBurnedToday = 0;
         let activeTimeToday = 0;
         let workoutsThisWeek = workouts.length;
 
         workouts.forEach(w => {
-            if (new Date(w.date) >= today) {
-                caloriesBurnedToday += w.caloriesBurned || 0;
-                activeTimeToday += w.duration || 0;
+            const wDate = new Date(w.date);
+            if (wDate >= today) {
+                caloriesBurnedToday += Number(w.caloriesBurned) || 0;
+                activeTimeToday += Number(w.duration) || 0;
             }
         });
 
@@ -57,25 +60,56 @@ const getDashboardData = async (req, res) => {
 
         const dietScore = validScores > 0 ? Math.round(totalHealthScore / validScores) : 0;
 
-        // 3. Activity Chart Data (Last 7 Days)
-        const activityChartMap = {};
+        // 3. Activity Chart Data (Last 7 Days - Exact Local Calendar Date Bucket)
         const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        
-        // Initialize last 7 days with 0
+        const last7Days = [];
+
         for (let i = 6; i >= 0; i--) {
-            const d = new Date();
+            const d = new Date(today);
             d.setDate(d.getDate() - i);
-            activityChartMap[daysOfWeek[d.getDay()]] = { day: daysOfWeek[d.getDay()], minutes: 0, calories: 0 };
+
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const dateNum = String(d.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${dateNum}`;
+
+            last7Days.push({
+                dateStr,
+                day: daysOfWeek[d.getDay()],
+                minutes: 0,
+                calories: 0
+            });
         }
 
         workouts.forEach(w => {
-            const dayName = daysOfWeek[new Date(w.date).getDay()];
-            if (activityChartMap[dayName]) {
-                activityChartMap[dayName].minutes += w.duration || 0;
-                activityChartMap[dayName].calories += w.caloriesBurned || 0;
+            const wDate = new Date(w.date);
+
+            const utcYear = wDate.getUTCFullYear();
+            const utcMonth = String(wDate.getUTCMonth() + 1).padStart(2, '0');
+            const utcDateNum = String(wDate.getUTCDate()).padStart(2, '0');
+            const utcDateStr = `${utcYear}-${utcMonth}-${utcDateNum}`;
+
+            const locYear = wDate.getFullYear();
+            const locMonth = String(wDate.getMonth() + 1).padStart(2, '0');
+            const locDateNum = String(wDate.getDate()).padStart(2, '0');
+            const locDateStr = `${locYear}-${locMonth}-${locDateNum}`;
+
+            let matchedDay = last7Days.find(d => d.dateStr === utcDateStr);
+            if (!matchedDay) {
+                matchedDay = last7Days.find(d => d.dateStr === locDateStr);
+            }
+
+            if (matchedDay) {
+                matchedDay.minutes += Number(w.duration) || 0;
+                matchedDay.calories += Number(w.caloriesBurned) || 0;
             }
         });
-        const activityChartData = Object.values(activityChartMap);
+
+        const activityChartData = last7Days.map(d => ({
+            day: d.day,
+            minutes: d.minutes,
+            calories: d.calories
+        }));
 
         // 4. Macro Chart Data
         const macroChartData = [
@@ -84,7 +118,7 @@ const getDashboardData = async (req, res) => {
             { name: 'Fats', value: Math.round(fats), color: '#7000FF' },
         ];
 
-        // 5. Recent Activity Feed (Mix of workouts and scans)
+        // 5. Recent Activity Feed
         const recentWorkouts = await WorkoutSession.find({ userId })
             .sort({ date: -1 })
             .limit(3);
@@ -121,32 +155,29 @@ const getDashboardData = async (req, res) => {
             });
         });
 
-        // Sort combined activities by time descending
         recentActivities.sort((a, b) => new Date(b.time) - new Date(a.time));
-        // Calculate Current Streak
+
+        // 6. Current Streak
         const allWorkouts = await WorkoutSession.find({ userId }).sort({ date: -1 }).select('date');
         let currentStreak = 0;
-        
-        const todayZero = new Date();
-        todayZero.setHours(0,0,0,0);
-        const yesterdayZero = new Date(todayZero);
-        yesterdayZero.setDate(yesterdayZero.getDate() - 1);
 
         if (allWorkouts.length > 0) {
             const uniqueDates = [...new Set(allWorkouts.map(w => {
                 const d = new Date(w.date);
-                d.setHours(0,0,0,0);
-                return d.getTime();
-            }))].sort((a,b) => b - a);
+                return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+            }))].sort((a, b) => b - a);
 
-            if (uniqueDates[0] === todayZero.getTime() || uniqueDates[0] === yesterdayZero.getTime()) {
+            const todayTime = today.getTime();
+            const yesterdayTime = yesterday.getTime();
+
+            if (uniqueDates[0] === todayTime || uniqueDates[0] === yesterdayTime) {
                 currentStreak = 1;
                 let lastDate = uniqueDates[0];
-                
+
                 for (let i = 1; i < uniqueDates.length; i++) {
                     const expectedDate = new Date(lastDate);
                     expectedDate.setDate(expectedDate.getDate() - 1);
-                    
+
                     if (uniqueDates[i] === expectedDate.getTime()) {
                         currentStreak++;
                         lastDate = uniqueDates[i];
@@ -156,23 +187,23 @@ const getDashboardData = async (req, res) => {
                 }
             }
         }
-        
-        // Fetch Yesterday's data for trends
+
+        // 7. Yesterday's Trends
         const yesterdayWorkouts = await WorkoutSession.find({
             userId,
-            date: { $gte: yesterdayZero, $lt: todayZero }
+            date: { $gte: yesterday, $lt: today }
         });
 
         let caloriesBurnedYesterday = 0;
         let activeTimeYesterday = 0;
         yesterdayWorkouts.forEach(w => {
-            caloriesBurnedYesterday += w.caloriesBurned || 0;
-            activeTimeYesterday += w.duration || 0;
+            caloriesBurnedYesterday += Number(w.caloriesBurned) || 0;
+            activeTimeYesterday += Number(w.duration) || 0;
         });
 
         const yesterdayScans = await FoodScan.find({
             userId,
-            createdAt: { $gte: yesterdayZero, $lt: todayZero }
+            createdAt: { $gte: yesterday, $lt: today }
         });
 
         let yesterdayHealthScoreTotal = 0;
@@ -185,7 +216,6 @@ const getDashboardData = async (req, res) => {
         });
         const dietScoreYesterday = yesterdayValidScores > 0 ? Math.round(yesterdayHealthScoreTotal / yesterdayValidScores) : 0;
 
-        // Fetch last week's workouts for trend
         const fourteenDaysAgo = new Date(sevenDaysAgo);
         fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 7);
         const lastWeekWorkouts = await WorkoutSession.countDocuments({
@@ -193,14 +223,13 @@ const getDashboardData = async (req, res) => {
             date: { $gte: fourteenDaysAgo, $lt: sevenDaysAgo }
         });
 
-        // Trend Helper
         const calculateTrend = (current, previous) => {
             if (previous === 0 && current > 0) return '+100%';
             if (previous === 0 && current === 0) return '0%';
             const percentChange = Math.round(((current - previous) / previous) * 100);
             return percentChange > 0 ? `+${percentChange}%` : `${percentChange}%`;
         };
-        
+
         res.status(200).json({
             stats: {
                 caloriesBurned: caloriesBurnedToday,
@@ -221,7 +250,7 @@ const getDashboardData = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error('Error generating dashboard data:', error);
         res.status(500).json({ message: 'Server error generating dashboard data' });
     }
 };

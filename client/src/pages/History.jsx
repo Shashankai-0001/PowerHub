@@ -13,7 +13,7 @@ const History = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const user = JSON.parse(localStorage.getItem('user'));
+                const user = JSON.parse(sessionStorage.getItem('user'));
                 const token = user ? user.token : null;
                 const config = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -41,8 +41,8 @@ const History = () => {
     if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
 
     return (
-        <div className="min-h-screen p-4 pb-24">
-            <div className="max-w-5xl mx-auto">
+        <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-24">
+            <div className="max-w-[1800px] w-full mx-auto">
                 <h1 className="text-4xl font-black text-foreground mb-8 text-center tracking-tight">My History</h1>
 
                 <div className="flex justify-center mb-10">

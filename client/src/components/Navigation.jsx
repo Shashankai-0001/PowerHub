@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Dumbbell, ScanLine, UtensilsCrossed, TrendingUp, LogOut, User } from 'lucide-react';
+import { Home, Dumbbell, ScanLine, UtensilsCrossed, TrendingUp, LogOut, User, Maximize, Minimize } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 
 import { ThemeToggle } from './ThemeToggle';
@@ -18,6 +18,25 @@ export function Navigation() {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logout } = useContext(AuthContext);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => console.error(err));
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    };
 
     const handleLogout = () => {
         logout();
@@ -26,8 +45,8 @@ export function Navigation() {
 
     if (!user) {
         return (
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border supports-[backdrop-filter]:bg-background/40">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border supports-[backdrop-filter]:bg-background/40">
+                <div className="max-w-[1800px] w-full mx-auto px-4 sm:px-6 lg:px-10">
                     <div className="flex items-center justify-between h-20">
                         <Link to="/" className="flex items-center space-x-3 group">
                             <div className="relative w-10 h-10 flex items-center justify-center">
@@ -40,12 +59,19 @@ export function Navigation() {
                                 Power<span className="text-primary">Hub</span>
                             </span>
                         </Link>
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                            <button
+                                onClick={toggleFullscreen}
+                                className="p-2.5 rounded-xl border border-border bg-card/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-all shadow-sm"
+                                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
+                            >
+                                {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                            </button>
                             <ThemeToggle />
-                            <Link to="/login" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
+                            <Link to="/login" className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors">
                                 Log In
                             </Link>
-                            <Link to="/register" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold hover:bg-primary/90 transition-colors">
+                            <Link to="/register" className="bg-primary text-primary-foreground px-3.5 py-2 rounded-lg font-bold text-xs sm:text-sm hover:bg-primary/90 transition-colors shadow-md">
                                 Get Started
                             </Link>
                         </div>
@@ -57,12 +83,12 @@ export function Navigation() {
 
     return (
         <>
-            {/* Desktop Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border supports-[backdrop-filter]:bg-background/40">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Top Navigation Header */}
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border supports-[backdrop-filter]:bg-background/40">
+                <div className="max-w-[1800px] w-full mx-auto px-4 sm:px-6 lg:px-10">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo */}
-                        <Link to="/" className="flex items-center space-x-3 group">
+                        <Link to="/" className="flex items-center space-x-3 group shrink-0">
                             <div className="relative w-10 h-10 flex items-center justify-center">
                                 <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg group-hover:blur-xl transition-all duration-300" />
                                 <div className="relative w-full h-full rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center border border-border group-hover:scale-110 transition-transform duration-300">
@@ -74,8 +100,8 @@ export function Navigation() {
                             </span>
                         </Link>
 
-                        {/* Desktop Menu */}
-                        <div className="hidden md:flex items-center space-x-2">
+                        {/* Full Menu (Visible on Desktop width >= 1280px) */}
+                        <div className="hidden xl:flex items-center space-x-1 lg:space-x-2">
                             {navItems.map((item) => {
                                 const Icon = item.icon;
                                 const isActive = location.pathname === item.path;
@@ -84,7 +110,7 @@ export function Navigation() {
                                     <Link
                                         key={item.path}
                                         to={item.path}
-                                        className="relative px-4 py-2 group"
+                                        className="relative px-3.5 py-2 group"
                                     >
                                         <div className={`absolute inset-0 bg-muted rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isActive ? 'opacity-100 bg-muted' : ''}`} />
 
@@ -108,10 +134,17 @@ export function Navigation() {
                             })}
                         </div>
 
-                        {/* User Profile */}
-                        <div className="hidden md:flex items-center space-x-4 pl-6 border-l border-border">
+                        {/* User Profile (Full layout >= 1280px) */}
+                        <div className="hidden xl:flex items-center space-x-3 pl-6 border-l border-border">
+                            <button
+                                onClick={toggleFullscreen}
+                                className="p-2.5 rounded-xl border border-border bg-card/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-all shadow-sm flex items-center gap-2 text-xs font-bold"
+                                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
+                            >
+                                {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                            </button>
                             <ThemeToggle />
-                            <div className="text-right ml-2">
+                            <div className="text-right ml-1">
                                 <p className="text-sm font-bold text-foreground leading-none mb-1">{user.name}</p>
                                 <p className="text-xs text-primary font-medium tracking-wide">MEMBER</p>
                             </div>
@@ -129,13 +162,36 @@ export function Navigation() {
                                 <LogOut className="w-5 h-5" />
                             </button>
                         </div>
+
+                        {/* Mobile & Tablet Compact Top Controls (< 1280px width) */}
+                        <div className="xl:hidden flex items-center space-x-2 sm:space-x-3">
+                            <button
+                                onClick={toggleFullscreen}
+                                className="p-2 rounded-xl border border-border bg-card/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-all shadow-sm"
+                                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
+                            >
+                                {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                            </button>
+                            <ThemeToggle />
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/60 border border-border rounded-full">
+                                <User className="w-4 h-4 text-primary" />
+                                <span className="text-xs font-bold text-foreground max-w-[100px] truncate">{user.name}</span>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="p-2 rounded-xl bg-muted/60 border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                title="Logout"
+                            >
+                                <LogOut className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </nav>
 
-            {/* Mobile Bottom Navigation */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-border pb-safe">
-                <div className="flex items-center justify-around py-3 px-2">
+            {/* Mobile & Tablet Bottom Navigation (< 1280px width) */}
+            <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-t border-border pb-safe shadow-2xl">
+                <div className="flex items-center justify-around py-2.5 px-2">
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = location.pathname === item.path;
@@ -144,32 +200,23 @@ export function Navigation() {
                             <Link
                                 key={item.path}
                                 to={item.path}
-                                className="relative flex flex-col items-center p-2"
+                                className="relative flex flex-col items-center p-2 min-w-[56px]"
                             >
                                 {isActive && (
                                     <motion.div
                                         layoutId="mobileActive"
-                                        className="absolute inset-0 bg-muted rounded-xl"
+                                        className="absolute inset-0 bg-muted/80 border border-primary/20 rounded-xl"
                                         initial={false}
                                         transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                                     />
                                 )}
-                                <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-                                <span className={`text-[10px] font-medium ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                <Icon className={`w-5 h-5 mb-1 relative z-10 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                                <span className={`text-[10px] font-bold relative z-10 transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
                                     {item.label}
                                 </span>
                             </Link>
                         );
                     })}
-                    <button
-                        onClick={handleLogout}
-                        className="relative flex flex-col items-center p-2"
-                    >
-                        <LogOut className="w-6 h-6 mb-1 text-muted-foreground" />
-                        <span className="text-[10px] font-medium text-muted-foreground">
-                            Logout
-                        </span>
-                    </button>
                 </div>
             </nav>
         </>

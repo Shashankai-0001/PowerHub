@@ -1,8 +1,13 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
 const dotenv = require('dotenv');
 const Exercise = require('./models/Exercise');
 
 dotenv.config();
+
+try {
+    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+} catch (e) {}
 
 const MONGO_URI = process.env.MONGO_URI;
 

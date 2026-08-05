@@ -46,8 +46,8 @@ const ExerciseLibrary = () => {
     };
 
     return (
-        <div className="container mx-auto p-6 pb-24">
-            <h2 className="text-4xl font-black mb-8 text-white tracking-tight">Exercise Library</h2>
+        <div className="w-full pb-24 pt-2 sm:pt-4">
+            <h2 className="text-4xl font-black mb-8 text-foreground tracking-tight">Exercise Library</h2>
 
             {/* Filters */}
             <div className="bg-card backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-xl mb-8">

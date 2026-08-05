@@ -60,36 +60,20 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ message: 'Email and password are required' });
         }
 
-        let user = await User.findOne({ 
+        const user = await User.findOne({ 
             email: { $regex: new RegExp(`^${cleanEmail.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}$`, 'i') } 
         });
 
-        if (!user) {
-            user = await User.findOne({});
-            if (!user) {
-                const rawName = cleanEmail.split('@')[0];
-                const formattedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-                user = await User.create({
-                    name: formattedName || 'PowerHub Member',
-                    email: cleanEmail,
-                    password: password
-                });
-            }
+        if (user && (await user.matchPassword(password))) {
+            res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                token: generateToken(user._id),
+            });
         } else {
-            // Sync password if user typed an updated password so login always succeeds
-            const isMatch = await user.matchPassword(password);
-            if (!isMatch) {
-                user.password = password;
-                await user.save();
-            }
+            res.status(401).json({ message: 'Invalid email or password' });
         }
-
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            token: generateToken(user._id),
-        });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: error.message });

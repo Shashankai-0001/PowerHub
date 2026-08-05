@@ -7,6 +7,8 @@ services:
     buildCommand: npm run build
     startCommand: npm start
     envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
       - key: MONGO_URI
         value: mongodb+srv://powerhub:powerhub@powerhub.iietqg7.mongodb.net/?appName=powerhub
       - key: JWT_SECRET
